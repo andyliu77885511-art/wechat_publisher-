@@ -350,6 +350,8 @@ defaults = {
     "article_content": None,
     "article_id": None,
     "error": None,
+    "category": config.DEFAULT_CATEGORY,      # 公众号定位
+    "writing_style": config.DEFAULT_STYLE,    # 写作风格
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -432,6 +434,28 @@ if not cfg_result["ok"]:
 
 st.divider()
 
+# ── 公众号定位选择器（常驻顶部，随时可切换）────────────────────────────────────────
+with st.container():
+    col_pos_label, col_pos_sel = st.columns([1, 3])
+    with col_pos_label:
+        st.markdown(
+            '<div style="padding-top:8px;color:rgba(255,255,255,0.7);font-size:0.9rem;">📌 公众号定位</div>',
+            unsafe_allow_html=True,
+        )
+    with col_pos_sel:
+        selected_category = st.selectbox(
+            "公众号定位",
+            options=config.CATEGORY_LIST,
+            index=config.CATEGORY_LIST.index(st.session_state.category),
+            label_visibility="collapsed",
+            key="category_selector",
+        )
+        if selected_category != st.session_state.category:
+            st.session_state.category = selected_category
+            st.rerun()
+
+st.divider()
+
 # ── 进度指示器 ───────────────────────────────────────────────────────────────────
 
 STEPS = [
@@ -480,6 +504,30 @@ if st.session_state.step == "upload":
             )
         else:
             file_ready = True
+
+    # 写作风格配置（文章级，每次处理前选择）
+    st.divider()
+    st.markdown('<div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:6px;">🎨 写作风格</div>', unsafe_allow_html=True)
+    style_options = config.STYLE_LIST
+    selected_style = st.radio(
+        "写作风格",
+        options=style_options,
+        index=style_options.index(st.session_state.writing_style),
+        horizontal=True,
+        label_visibility="collapsed",
+        key="style_radio",
+    )
+    if selected_style != st.session_state.writing_style:
+        st.session_state.writing_style = selected_style
+    style_desc = {
+        "严肃专业": "语言克制、逻辑严密，多用数据支撑",
+        "轻松幽默": "口语化有梗，像朋友聊天，适度调侃",
+        "深度分析": "层层递进、有框架有反驳，挖掘深层逻辑（默认）",
+        "故事叙述": "具体场景开头，道理藏在故事里",
+    }
+    st.caption(f"当前：{selected_style} — {style_desc.get(selected_style, '')}")
+
+    st.divider()
 
     # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
     if st.button("🚀 开始处理", type="primary", use_container_width=True, disabled=not file_ready):
@@ -546,7 +594,11 @@ elif st.session_state.step == "processing":
             status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
             progress_placeholder.progress(0.5)
 
-            result = generate_article(transcript)
+            result = generate_article(
+                transcript,
+                category=st.session_state.category,
+                style=st.session_state.writing_style,
+            )
 
             sub_steps[1]["status"] = "done"
             st.session_state.article_title = result["title"]
@@ -602,7 +654,11 @@ elif st.session_state.step == "processing":
         status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
         progress_placeholder.progress(0.6)
 
-        result = generate_article(transcript)
+        result = generate_article(
+            transcript,
+            category=st.session_state.category,
+            style=st.session_state.writing_style,
+        )
 
         sub_steps[2]["status"] = "done"
         st.session_state.article_title = result["title"]
