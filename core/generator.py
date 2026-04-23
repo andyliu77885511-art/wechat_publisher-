@@ -29,6 +29,32 @@ def _get_client() -> OpenAI:
     return _client
 
 
+def _word_count(text: str) -> int:
+    """中文字数统计（去除换行和空格）"""
+    if not text:
+        return 0
+    return len(text.replace("\n", "").replace(" ", ""))
+
+
+def _strip_wx_footer(content: str) -> str:
+    """
+    移除文末的风险提示和空行，为后续补充段落腾出空间。
+    如果没有风险提示则原样返回。
+    """
+    footer_marker = "以上内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。"
+    idx = content.rfind(footer_marker)
+    if idx >= 0:
+        return content[:idx].rstrip()
+    # 也尝试去掉末尾空行
+    return content.rstrip()
+
+
+def _append_footnote(content: str) -> str:
+    """在正文末尾（换行前）追加风险提示"""
+    footer = "\n\n以上内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。"
+    return content.rstrip() + footer
+
+
 def _parse_article(raw: str) -> dict:
     """
     从模型原始输出中拆分标题和正文。
@@ -47,6 +73,56 @@ def _parse_article(raw: str) -> dict:
 
     content = "\n".join(content_lines).strip()
     return {"title": title, "content": content}
+
+
+def _supplement_content(content: str, title: str, transcript: str, client: OpenAI) -> str:
+    """
+    当字数不足时，调用 DeepSeek 补充段落。
+    移除旧的风险提示后追加新段落，再加回风险提示。
+    """
+    current_count = _word_count(content)
+    deficit = config.ARTICLE_MIN_WORDS - current_count
+
+    logger.info(f"[generator] 字数不足，需要补充约 {deficit} 字")
+
+    # 移除旧风险提示，避免累加
+    clean_content = _strip_wx_footer(content)
+
+    supplement_prompt = f"""当前文章标题：「{title}」
+当前正文：
+{clean_content}
+
+请根据上述正文和原始转录稿，补充约 {deficit} 字的内容，使文章正文达到 {config.ARTICLE_MIN_WORDS} 字以上。
+
+补充要求：
+1. 只补充实质性内容，如：背景分析、数据解读、观点深化、案例说明
+2. 不要重复已有的观点和句子
+3. 保持与原文一致的语气和风格
+4. 补充内容直接追加到正文中，不要加小标题
+
+直接输出补充内容，不要加标题，不要加风险提示。"""
+
+    try:
+        response = client.chat.completions.create(
+            model=config.DEEPSEEK_MODEL,
+            messages=[
+                {"role": "system", "content": config.FINANCE_SYSTEM_PROMPT},
+                {"role": "user", "content": supplement_prompt},
+            ],
+            temperature=0.7,
+            max_tokens=2048,
+        )
+        supplement = response.choices[0].message.content.strip()
+        new_content = clean_content + "\n\n" + supplement
+        new_content = _append_footnote(new_content)
+
+        final_count = _word_count(new_content)
+        logger.info(f"[generator] 补充后字数：{final_count}（目标 ≥{config.ARTICLE_MIN_WORDS}）")
+        return new_content
+
+    except Exception as e:
+        logger.warning(f"[generator] 补充段落失败：{e}，返回原内容")
+        return _append_footnote(clean_content)
 
 
 def generate_article(transcript: str) -> dict:
@@ -93,6 +169,17 @@ def generate_article(transcript: str) -> dict:
                 raise ValueError(f"模型输出正文过短（{len(result['content'])}字），内容异常")
 
             logger.info(f"[generator] 文章生成成功，标题：{result['title']}")
+
+            # 字数检测与自动补足
+            word_cnt = _word_count(result["content"])
+            logger.info(f"[generator] 生成字数：{word_cnt}，目标：{config.ARTICLE_MIN_WORDS}-{config.ARTICLE_MAX_WORDS}")
+
+            if word_cnt < config.ARTICLE_MIN_WORDS:
+                # 自动补充段落，最多补一次
+                result["content"] = _supplement_content(
+                    result["content"], result["title"], transcript, client
+                )
+
             return result
 
         except (APITimeoutError, RateLimitError) as e:
