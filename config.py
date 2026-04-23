@@ -41,7 +41,8 @@ OUTPUT_DIR: str = os.path.join(BASE_DIR, _get("OUTPUT_DIR", "outputs"))
 DB_PATH: str = os.path.join(BASE_DIR, _get("DB_PATH", "wechat_publisher.db"))
 
 # ===== 上传限制 =====
-ALLOWED_AUDIO_TYPES: list = ["mp3", "mp4", "m4a", "wav"]
+ALLOWED_AUDIO_TYPES: list = ["mp3", "mp4", "m4a", "wav", "avi", "mov", "mkv", "flv", "wmv"]
+ALLOWED_FILE_TYPES: list = ["mp3", "mp4", "m4a", "wav", "avi", "mov", "mkv", "flv", "wmv", "pdf", "txt", "docx", "md"]
 MAX_FILE_SIZE_MB: int = 500  # 单文件上限（MB）
 
 # ===== 文章生成参数 =====

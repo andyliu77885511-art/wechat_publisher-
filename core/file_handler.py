@@ -1,5 +1,5 @@
 """
-file_handler.py — 文件上传处理 + ffmpeg 音频提取
+file_handler.py — 文件上传处理 + ffmpeg 音频提取 + 文档文本提取
 """
 import os
 import subprocess
@@ -87,3 +87,93 @@ def estimate_transcribe_minutes(duration_seconds: int) -> str:
         return "约4-8分钟"
     else:
         return f"约{int(mins / 8)}-{int(mins / 6)}分钟"
+
+
+def extract_text_from_doc(file_path: str, file_type: str) -> str:
+    """
+    从文档文件（pdf/txt/docx/md）中提取纯文本
+    返回提取的文本内容
+    提取失败抛出 RuntimeError
+    """
+    if file_type == "txt":
+        return _extract_text_from_txt(file_path)
+    elif file_type == "md":
+        return _extract_text_from_md(file_path)
+    elif file_type == "pdf":
+        return _extract_text_from_pdf(file_path)
+    elif file_type == "docx":
+        return _extract_text_from_docx(file_path)
+    else:
+        raise RuntimeError(f"不支持的文档格式：{file_type}")
+
+
+def _extract_text_from_txt(file_path: str) -> str:
+    """读取纯文本文件"""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except UnicodeDecodeError:
+        # 尝试其他编码
+        for enc in ["gbk", "gb2312", "latin-1"]:
+            try:
+                with open(file_path, "r", encoding=enc) as f:
+                    return f.read()
+            except Exception:
+                continue
+        raise RuntimeError(f"无法解码文本文件（尝试了 utf-8/gbk/gb2312）")
+    except Exception as e:
+        raise RuntimeError(f"读取文本文件失败：{e}")
+
+
+def _extract_text_from_md(file_path: str) -> str:
+    """Markdown 本质上就是纯文本，直接读取"""
+    return _extract_text_from_txt(file_path)
+
+
+def _extract_text_from_pdf(file_path: str) -> str:
+    """使用 pypdf 提取 PDF 文本"""
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        raise RuntimeError("缺少依赖 pypdf，请先安装：pip install pypdf")
+
+    try:
+        reader = PdfReader(file_path)
+        texts = []
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                texts.append(page_text)
+        if not texts:
+            raise RuntimeError("PDF 中未提取到文字内容，可能是扫描版或图片型 PDF")
+        return "\n".join(texts)
+    except Exception as e:
+        if "pypdf" in str(e) or "PdfReader" in str(e):
+            raise RuntimeError(f"PDF 解析失败：{e}")
+        raise RuntimeError(f"PDF 提取失败：{e}")
+
+
+def _extract_text_from_docx(file_path: str) -> str:
+    """使用 python-docx 提取 Word 文档文本"""
+    try:
+        from docx import Document
+    except ImportError:
+        raise RuntimeError("缺少依赖 python-docx，请先安装：pip install python-docx")
+
+    try:
+        doc = Document(file_path)
+        paragraphs = []
+        for para in doc.paragraphs:
+            if para.text.strip():
+                paragraphs.append(para.text)
+        # 尝试读取表格
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    if cell.text.strip():
+                        paragraphs.append(cell.text)
+        if not paragraphs:
+            raise RuntimeError("Word 文档中未提取到文字内容")
+        return "\n".join(paragraphs)
+    except Exception as e:
+        raise RuntimeError(f"Word 文档提取失败：{e}")
