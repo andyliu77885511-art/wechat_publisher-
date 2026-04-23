@@ -39,11 +39,15 @@ FINANCE_PROMPT = (
     "请准确转录，保留数字和百分比的原始表达。"
 )
 
+# 转录内容最少有效字数（低于此值视为无效内容）
+MIN_TRANSCRIPT_LENGTH = 10
+
 
 def transcribe(audio_path: Path) -> str:
     """
     调用 Groq Whisper API 转录音频，返回文字稿。
     Groq 单次限制 25MB。
+    如果转录结果为空或内容过少，抛出 ValueError 提示用户。
     """
     file_size_mb = audio_path.stat().st_size / (1024 * 1024)
     if file_size_mb >= 25:
@@ -63,4 +67,12 @@ def transcribe(audio_path: Path) -> str:
             response_format="text",
         )
 
-    return response
+    # 检查转录结果是否有效
+    transcript = response.strip() if response else ""
+    if len(transcript) < MIN_TRANSCRIPT_LENGTH:
+        raise ValueError(
+            "未能从视频/音频中识别到有效语音内容。"
+            "请确认文件中包含清晰的人声，纯音乐或无声视频暂不支持处理。"
+        )
+
+    return transcript
