@@ -83,6 +83,5 @@ def validate_config() -> dict:
         missing.append("DEEPSEEK_API_KEY")
     if not WX_APP_ID:
         missing.append("WX_APP_ID")
-    if not WX_APP_SECRET:
-        missing.append("WX_APP_SECRET")
+    # WX_APP_SECRET 暂不启用，微信发布功能保留但不强制检查
     return {"ok": len(missing) == 0, "missing": missing}
