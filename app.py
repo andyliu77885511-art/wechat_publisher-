@@ -534,6 +534,7 @@ if st.session_state.step == "upload":
         "故事叙述": "具体场景开头，道理藏在故事里",
     }
     st.caption(f"当前：{selected_style} — {style_desc.get(selected_style, '')}")
+    st.caption(f"💡 定位决定领域腔调，风格决定表达方式 — 当前：{st.session_state.category} × {selected_style}")
 
     st.divider()
 

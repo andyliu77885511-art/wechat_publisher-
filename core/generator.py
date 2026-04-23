@@ -262,6 +262,7 @@ def generate_article(transcript: str, category: str = "财经", style: str = "�
 
     # ── 第二阶段：生成文章 ────────────────────────────────────────────────────────
     user_prompt = config.build_user_prompt(transcript, category)
+    logger.debug(f"[generator] system_prompt 前200字符: {system_prompt[:200]!r}")
 
     raw = _call_deepseek(
         system_prompt=system_prompt,
