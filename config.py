@@ -1,6 +1,6 @@
 """
 config.py — 统一配置管理
-所有配置从环境变量读取，提供默认值，确保缺少非必要配置时不崩溃
+优先从 Streamlit Secrets 读取，其次从环境变量/.env 读取
 """
 
 import os
@@ -8,15 +8,27 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# 兼容 Streamlit Cloud Secrets
+try:
+    import streamlit as st
+    def _get(key, default=""):
+        try:
+            return st.secrets[key]
+        except Exception:
+            return os.getenv(key, default)
+except Exception:
+    def _get(key, default=""):
+        return os.getenv(key, default)
+
 
 # ===== API 密钥 =====
-OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
-DEEPSEEK_BASE_URL: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+OPENAI_API_KEY: str = _get("OPENAI_API_KEY", "")
+DEEPSEEK_API_KEY: str = _get("DEEPSEEK_API_KEY", "")
+DEEPSEEK_BASE_URL: str = _get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 
 # ===== 微信公众号 =====
-WX_APP_ID: str = os.getenv("WX_APP_ID", "")
-WX_APP_SECRET: str = os.getenv("WX_APP_SECRET", "")
+WX_APP_ID: str = _get("WX_APP_ID", "")
+WX_APP_SECRET: str = _get("WX_APP_SECRET", "")
 WX_TOKEN_URL: str = "https://api.weixin.qq.com/cgi-bin/token"
 WX_UPLOAD_IMG_URL: str = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
 WX_ADD_NEWS_URL: str = "https://api.weixin.qq.com/cgi-bin/draft/add"
@@ -24,9 +36,9 @@ WX_FREE_PUBLISH_URL: str = "https://api.weixin.qq.com/cgi-bin/freepublish/submit
 
 # ===== 本地文件存储 =====
 BASE_DIR: str = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR: str = os.path.join(BASE_DIR, os.getenv("UPLOAD_DIR", "uploads"))
-OUTPUT_DIR: str = os.path.join(BASE_DIR, os.getenv("OUTPUT_DIR", "outputs"))
-DB_PATH: str = os.path.join(BASE_DIR, os.getenv("DB_PATH", "wechat_publisher.db"))
+UPLOAD_DIR: str = os.path.join(BASE_DIR, _get("UPLOAD_DIR", "uploads"))
+OUTPUT_DIR: str = os.path.join(BASE_DIR, _get("OUTPUT_DIR", "outputs"))
+DB_PATH: str = os.path.join(BASE_DIR, _get("DB_PATH", "wechat_publisher.db"))
 
 # ===== 上传限制 =====
 ALLOWED_AUDIO_TYPES: list = ["mp3", "mp4", "m4a", "wav"]
