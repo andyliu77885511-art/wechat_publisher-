@@ -1,25 +1,32 @@
 """
 Whisper 转录模块
-使用 OpenAI Whisper API，针对财经场景做提示词优化
+使用 Groq Whisper API，针对财经场景做提示词优化
 """
 import os
 from pathlib import Path
-from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
 from typing import Optional
-_client: Optional[OpenAI] = None
+_client: Optional[Groq] = None
 
 
-def _get_client() -> OpenAI:
+def _get_client() -> Groq:
     global _client
     if _client is None:
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            raise EnvironmentError("未设置 OPENAI_API_KEY，请在 .env 文件中配置")
-        _client = OpenAI(api_key=api_key)
+            # 兼容 Streamlit Secrets
+            try:
+                import streamlit as st
+                api_key = st.secrets.get("GROQ_API_KEY", "")
+            except Exception:
+                pass
+        if not api_key:
+            raise EnvironmentError("未设置 GROQ_API_KEY，请在 Streamlit Secrets 中配置")
+        _client = Groq(api_key=api_key)
     return _client
 
 
@@ -35,8 +42,8 @@ FINANCE_PROMPT = (
 
 def transcribe(audio_path: Path) -> str:
     """
-    调用 Whisper API 转录音频，返回文字稿。
-    大文件（>=25MB）需要分片，本期 MVP 暂不处理，抛出提示。
+    调用 Groq Whisper API 转录音频，返回文字稿。
+    Groq 单次限制 25MB。
     """
     file_size_mb = audio_path.stat().st_size / (1024 * 1024)
     if file_size_mb >= 25:
@@ -49,7 +56,7 @@ def transcribe(audio_path: Path) -> str:
 
     with open(audio_path, "rb") as f:
         response = client.audio.transcriptions.create(
-            model="whisper-1",
+            model="whisper-large-v3",
             file=f,
             language="zh",
             prompt=FINANCE_PROMPT,

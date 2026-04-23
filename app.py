@@ -205,26 +205,31 @@ if st.session_state.step == "upload":
         label_visibility="collapsed",
     )
 
+    file_ready = False
+    file_size_ok = True
+
     if uploaded:
         file_size_mb = uploaded.size / (1024 * 1024)
         st.info(f"已选择：{uploaded.name}（{file_size_mb:.1f} MB）")
-
         if file_size_mb > config.MAX_FILE_SIZE_MB:
             st.markdown(
                 f'<div class="error-box">文件大小超过限制（{config.MAX_FILE_SIZE_MB}MB），请压缩后重试。</div>',
                 unsafe_allow_html=True,
             )
+            file_size_ok = False
         else:
-            if st.button("开始处理", type="primary", use_container_width=True):
-                # 保存文件
-                file_path, file_type = save_uploaded_file(uploaded)
-                material_id = create_material(file_path, file_type, title=uploaded.name)
+            file_ready = True
 
-                st.session_state.file_path = file_path
-                st.session_state.file_type = file_type
-                st.session_state.material_id = material_id
-                st.session_state.step = "processing"
-                st.rerun()
+    if st.button("开始处理", type="primary", use_container_width=True, disabled=not file_ready):
+        if file_ready:
+            file_path, file_type = save_uploaded_file(uploaded)
+            material_id = create_material(file_path, file_type, title=uploaded.name)
+
+            st.session_state.file_path = file_path
+            st.session_state.file_type = file_type
+            st.session_state.material_id = material_id
+            st.session_state.step = "processing"
+            st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════════════════
