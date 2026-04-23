@@ -43,47 +43,295 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式 ───────────────────────────────────────────────────────────────────
+# ── 自定义样式（全面美化版）───────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    .stApp { background-color: #F5F7FA; }
-    .main .block-container { max-width: 730px; padding-top: 2rem; }
-    .upload-box {
-        border: 2px dashed #1677FF;
-        border-radius: 12px;
-        padding: 3rem 2rem;
-        text-align: center;
-        background: #F0F5FF;
-        margin: 1rem 0;
-    }
-    .step-done { color: #43A047; font-weight: 600; }
-    .step-active { color: #1677FF; font-weight: 600; }
-    .step-wait { color: #9E9E9E; }
-    .warn-box {
-        background: #FFF3E0;
-        border: 1px solid #FB8C00;
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin: 1rem 0;
-        color: #E65100;
-    }
-    .success-box {
-        background: #E8F5E9;
-        border: 1px solid #43A047;
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin: 1rem 0;
-        color: #1B5E20;
-    }
-    .error-box {
-        background: #FFEBEE;
-        border: 1px solid #E53935;
-        border-radius: 8px;
-        padding: 1rem 1.5rem;
-        margin: 1rem 0;
-        color: #B71C1C;
-    }
-    div[data-testid="stFileUploader"] > div { border: none !important; }
+/* ===== 动画 Keyframes ===== */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+    0%   { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.55); }
+    70%  { box-shadow: 0 0 0 12px rgba(108, 99, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0); }
+}
+@keyframes borderPulse {
+    0%   { border-color: #6C63FF; box-shadow: 0 0 0 0 rgba(108,99,255,0.4); }
+    50%  { border-color: #1CB5E0; box-shadow: 0 0 16px 4px rgba(28,181,224,0.35); }
+    100% { border-color: #6C63FF; box-shadow: 0 0 0 0 rgba(108,99,255,0.4); }
+}
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+/* ===== 全局背景 ===== */
+.stApp {
+    background: linear-gradient(135deg, #0F0C29 0%, #1a1040 40%, #0d2137 100%) !important;
+    min-height: 100vh;
+}
+.main .block-container {
+    max-width: 760px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+/* ===== Header 淡入 ===== */
+.app-header {
+    animation: fadeInDown 0.7s ease both;
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.2rem;
+}
+.app-subtitle {
+    animation: fadeInDown 0.9s ease both;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.85rem;
+    margin-top: 0;
+}
+
+/* ===== 分隔线 ===== */
+hr {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(108,99,255,0.5), transparent) !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ===== 步骤指示器（胶囊/标签样式）===== */
+.step-capsule-done {
+    display: inline-block;
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0);
+    color: #fff !important;
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    animation: slideInUp 0.4s ease both;
+}
+.step-capsule-active {
+    display: inline-block;
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0);
+    color: #fff !important;
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    animation: pulse-glow 1.6s infinite, slideInUp 0.4s ease both;
+    box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.55);
+}
+.step-capsule-wait {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.35) !important;
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ===== 上传区卡片 ===== */
+.upload-box {
+    border: 2px dashed #6C63FF;
+    border-radius: 20px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(108,99,255,0.12) 0%, rgba(28,181,224,0.08) 100%);
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.5s ease both;
+    animation-delay: 0.1s;
+}
+.upload-box:hover {
+    animation: borderPulse 1.5s ease infinite;
+    background: linear-gradient(135deg, rgba(108,99,255,0.2) 0%, rgba(28,181,224,0.15) 100%);
+}
+.upload-icon {
+    font-size: 3.2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 12px rgba(108,99,255,0.7));
+}
+.upload-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.3rem;
+}
+.upload-hint {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.85rem;
+}
+
+/* ===== 子步骤状态 ===== */
+.step-done  { color: #43E97B; font-weight: 600; }
+.step-active { color: #6C63FF; font-weight: 600; }
+.step-wait  { color: rgba(255,255,255,0.3); }
+
+/* ===== 提示框 ===== */
+.warn-box {
+    background: linear-gradient(135deg, rgba(251,140,0,0.15), rgba(251,140,0,0.05));
+    border: 1px solid rgba(251,140,0,0.5);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    color: #FFB74D;
+    animation: slideInUp 0.4s ease both;
+}
+.success-box {
+    background: linear-gradient(135deg, rgba(67,233,123,0.15), rgba(67,233,123,0.05));
+    border: 1px solid rgba(67,233,123,0.4);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    color: #43E97B;
+    animation: slideInUp 0.4s ease both;
+}
+.error-box {
+    background: linear-gradient(135deg, rgba(229,57,53,0.15), rgba(229,57,53,0.05));
+    border: 1px solid rgba(229,57,53,0.4);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    color: #EF9A9A;
+    animation: slideInUp 0.4s ease both;
+}
+
+/* ===== 文章编辑区：左彩条 ===== */
+.editor-card {
+    border-left: 4px solid transparent;
+    border-image: linear-gradient(180deg, #6C63FF, #1CB5E0) 1;
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.5rem;
+    background: rgba(255,255,255,0.04);
+    margin-bottom: 1rem;
+    animation: slideInUp 0.5s ease both;
+}
+
+/* ===== 输入框高亮线条 ===== */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(108,99,255,0.3) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    border-color: #6C63FF !important;
+    box-shadow: 0 2px 0 0 #6C63FF, 0 0 12px rgba(108,99,255,0.3) !important;
+    outline: none !important;
+}
+
+/* ===== 按钮：渐变 + hover 上浮 ===== */
+.stButton > button {
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 0.55rem 1.5rem !important;
+    box-shadow: 0 4px 18px rgba(108,99,255,0.35) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+    cursor: pointer !important;
+}
+.stButton > button:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 8px 28px rgba(108,99,255,0.55) !important;
+}
+.stButton > button:active {
+    transform: translateY(0) scale(0.98) !important;
+    box-shadow: 0 2px 8px rgba(108,99,255,0.3) !important;
+}
+/* 次要按钮（← 上一步等）稍微暗一些 */
+.stButton > button[kind="secondary"] {
+    background: rgba(255,255,255,0.08) !important;
+    box-shadow: none !important;
+    color: rgba(255,255,255,0.7) !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background: rgba(255,255,255,0.14) !important;
+    box-shadow: none !important;
+}
+
+/* ===== 下载按钮 ===== */
+.stDownloadButton > button {
+    background: linear-gradient(90deg, #43E97B, #38F9D7) !important;
+    color: #0a0a14 !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 18px rgba(67,233,123,0.3) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.stDownloadButton > button:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 8px 28px rgba(67,233,123,0.5) !important;
+}
+
+/* ===== 标签/Caption 颜色 ===== */
+.stCaption, label, .stMarkdown p {
+    color: rgba(255,255,255,0.65) !important;
+}
+
+/* ===== 进度条 ===== */
+.stProgress > div > div > div {
+    background: linear-gradient(90deg, #6C63FF, #1CB5E0) !important;
+    border-radius: 999px !important;
+}
+.stProgress > div > div {
+    background: rgba(255,255,255,0.08) !important;
+    border-radius: 999px !important;
+}
+
+/* ===== Expander ===== */
+.streamlit-expanderHeader {
+    background: rgba(255,255,255,0.05) !important;
+    border-radius: 10px !important;
+    color: rgba(255,255,255,0.8) !important;
+    font-weight: 600 !important;
+}
+
+/* ===== file uploader 边框去除 ===== */
+div[data-testid="stFileUploader"] > div { border: none !important; }
+div[data-testid="stFileUploader"] section {
+    background: rgba(108,99,255,0.07) !important;
+    border: 1.5px dashed rgba(108,99,255,0.5) !important;
+    border-radius: 12px !important;
+}
+
+/* ===== subheader 样式 ===== */
+h2, h3 {
+    background: linear-gradient(90deg, #ffffff, rgba(255,255,255,0.7));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800 !important;
+}
+
+/* ===== info/warning/success Streamlit 原生组件 ===== */
+div[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    border: none !important;
+    background: rgba(255,255,255,0.07) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -123,18 +371,26 @@ def word_count(text: str) -> int:
 
 
 def render_step_indicators(steps_list, current_step_key):
-    """渲染横向进度指示器"""
-    # BUG-003 FIX: 使用 next() 带默认值查找，防止非法 step 值 crash
+    """渲染横向进度指示器（胶囊样式）"""
     current_idx = next((i for i, s in enumerate(steps_list) if s[0] == current_step_key), 0)
     cols = st.columns(len(steps_list))
     for i, (step_key, step_label) in enumerate(steps_list):
         with cols[i]:
             if i < current_idx:
-                st.markdown(f'<span class="step-done">✓ {step_label}</span>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="text-align:center"><span class="step-capsule-done">✓ {step_label}</span></div>',
+                    unsafe_allow_html=True,
+                )
             elif i == current_idx:
-                st.markdown(f'<span class="step-active">● {step_label}</span>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="text-align:center"><span class="step-capsule-active">● {step_label}</span></div>',
+                    unsafe_allow_html=True,
+                )
             else:
-                st.markdown(f'<span class="step-wait">○ {step_label}</span>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="text-align:center"><span class="step-capsule-wait">○ {step_label}</span></div>',
+                    unsafe_allow_html=True,
+                )
 
 
 def render_sub_steps(steps_status):
@@ -154,9 +410,15 @@ def render_sub_steps(steps_status):
 
 col_title, col_ver = st.columns([5, 1])
 with col_title:
-    st.title(f"{config.PAGE_ICON} {config.PAGE_TITLE}")
+    st.markdown(
+        f'<div class="app-header">{config.PAGE_ICON} {config.PAGE_TITLE}</div>',
+        unsafe_allow_html=True,
+    )
 with col_ver:
-    st.caption(config.PAGE_VERSION)
+    st.markdown(
+        f'<div class="app-subtitle">{config.PAGE_VERSION}</div>',
+        unsafe_allow_html=True,
+    )
 
 # 配置检查
 cfg_result = config.validate_config()
@@ -192,9 +454,10 @@ if st.session_state.step == "upload":
 
     st.markdown(
         '<div class="upload-box">'
-        '<p style="font-size:1.2rem;color:#1677FF;">📁 拖拽文件到此处，或点击下方按钮选择</p>'
-        f'<p style="color:#666;margin-top:0.5rem;">支持格式：{", ".join(config.ALLOWED_AUDIO_TYPES)} | '
-        f'最大 {config.MAX_FILE_SIZE_MB}MB</p>'
+        '<span class="upload-icon">🎙️</span>'
+        '<div class="upload-title">拖拽文件到此处，或点击下方按钮选择</div>'
+        f'<div class="upload-hint">支持格式：{", ".join(config.ALLOWED_AUDIO_TYPES)} &nbsp;|&nbsp; '
+        f'最大 {config.MAX_FILE_SIZE_MB}MB</div>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -219,7 +482,7 @@ if st.session_state.step == "upload":
             file_ready = True
 
     # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
-    if st.button("开始处理", type="primary", use_container_width=True, disabled=not file_ready):
+    if st.button("🚀 开始处理", type="primary", use_container_width=True, disabled=not file_ready):
         file_path, file_type = save_uploaded_file(uploaded)
         material_id = create_material(file_path, file_type, title=uploaded.name)
 
@@ -324,6 +587,9 @@ elif st.session_state.step == "preview":
 
     st.subheader("预览与编辑")
 
+    # 编辑区卡片容器
+    st.markdown('<div class="editor-card">', unsafe_allow_html=True)
+
     # 标题编辑
     title = st.text_input(
         "文章标题",
@@ -338,6 +604,8 @@ elif st.session_state.step == "preview":
         height=400,
         placeholder="在此编辑文章内容...",
     )
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # 字数统计
     wc = word_count(content)
@@ -393,6 +661,3 @@ elif st.session_state.step == "preview":
                 mime="text/plain",
                 use_container_width=True,
             )
-
-
-# ═════════════════════════════════════════
