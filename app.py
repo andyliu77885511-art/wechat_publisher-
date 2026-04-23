@@ -443,16 +443,38 @@ with st.container():
             unsafe_allow_html=True,
         )
     with col_pos_sel:
+        # 如果当前 category 是自定义名称（不在列表里），选择器显示"其他"
+        _current_in_list = st.session_state.category in config.CATEGORY_LIST
+        _selector_index = (
+            config.CATEGORY_LIST.index(st.session_state.category)
+            if _current_in_list
+            else config.CATEGORY_LIST.index("其他")
+        )
         selected_category = st.selectbox(
             "公众号定位",
             options=config.CATEGORY_LIST,
-            index=config.CATEGORY_LIST.index(st.session_state.category),
+            index=_selector_index,
             label_visibility="collapsed",
             key="category_selector",
         )
-        if selected_category != st.session_state.category:
-            st.session_state.category = selected_category
-            st.rerun()
+        if selected_category == "其他":
+            # 自定义定位输入框
+            _custom_val = "" if _current_in_list else st.session_state.category
+            custom_category = st.text_input(
+                "输入自定义定位名称",
+                value=_custom_val,
+                placeholder="例如：母婴、健身、旅游...",
+                label_visibility="collapsed",
+                key="custom_category_input",
+            )
+            _effective = custom_category.strip() if custom_category.strip() else "其他"
+            if _effective != st.session_state.category:
+                st.session_state.category = _effective
+                st.rerun()
+        else:
+            if selected_category != st.session_state.category:
+                st.session_state.category = selected_category
+                st.rerun()
 
 st.divider()
 

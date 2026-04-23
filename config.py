@@ -55,7 +55,7 @@ STAGE1_TIMEOUT: int = 15   # 生成领域风格 prompt
 STAGE2_TIMEOUT: int = 60   # 生成最终文章
 
 # ===== 公众号定位与风格配置 =====
-CATEGORY_LIST: list = ["财经", "科技", "生活方式", "教育", "职场"]
+CATEGORY_LIST: list = ["财经", "科技", "生活方式", "教育", "职场", "其他"]
 STYLE_LIST: list = ["严肃专业", "轻松幽默", "深度分析", "故事叙述"]
 DEFAULT_CATEGORY: str = "财经"
 DEFAULT_STYLE: str = "深度分析"
