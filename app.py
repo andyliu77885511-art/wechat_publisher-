@@ -206,7 +206,6 @@ if st.session_state.step == "upload":
     )
 
     file_ready = False
-    file_size_ok = True
 
     if uploaded:
         file_size_mb = uploaded.size / (1024 * 1024)
@@ -216,20 +215,19 @@ if st.session_state.step == "upload":
                 f'<div class="error-box">文件大小超过限制（{config.MAX_FILE_SIZE_MB}MB），请压缩后重试。</div>',
                 unsafe_allow_html=True,
             )
-            file_size_ok = False
         else:
             file_ready = True
 
+    # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
     if st.button("开始处理", type="primary", use_container_width=True, disabled=not file_ready):
-        if file_ready:
-            file_path, file_type = save_uploaded_file(uploaded)
-            material_id = create_material(file_path, file_type, title=uploaded.name)
+        file_path, file_type = save_uploaded_file(uploaded)
+        material_id = create_material(file_path, file_type, title=uploaded.name)
 
-            st.session_state.file_path = file_path
-            st.session_state.file_type = file_type
-            st.session_state.material_id = material_id
-            st.session_state.step = "processing"
-            st.rerun()
+        st.session_state.file_path = file_path
+        st.session_state.file_type = file_type
+        st.session_state.material_id = material_id
+        st.session_state.step = "processing"
+        st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════════════════
