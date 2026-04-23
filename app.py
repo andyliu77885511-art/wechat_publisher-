@@ -504,6 +504,14 @@ if st.session_state.step == "upload":
             )
         else:
             file_ready = True
+            # 预计上传时间提示（按 2MB/s 估算）
+            if file_size_mb > 2:
+                est_upload_sec = int(file_size_mb / 2)
+                if est_upload_sec < 60:
+                    est_upload_str = f"约 {est_upload_sec} 秒"
+                else:
+                    est_upload_str = f"约 {est_upload_sec // 60} 分钟"
+                st.caption(f"⏱️ 文件较大，点击「开始处理」后预计上传 {est_upload_str}，请耐心等待")
 
     # 写作风格配置（文章级，每次处理前选择）
     st.divider()
@@ -531,7 +539,26 @@ if st.session_state.step == "upload":
 
     # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
     if st.button("🚀 开始处理", type="primary", use_container_width=True, disabled=not file_ready):
+        # 上传进度反馈
+        _file_size_mb = uploaded.size / (1024 * 1024)
+        _est_sec = max(2, int(_file_size_mb / 2)) if _file_size_mb > 1 else 1
+        _upload_bar = st.progress(0, text="📤 正在上传文件，请稍候...")
+        _upload_status = st.empty()
+
+        # 模拟上传进度（实际 IO 在 save_uploaded_file 中完成）
+        # 先推进到 70%，给用户反馈，剩余 30% 在 save 完成后完成
+        for _i in range(1, 8):
+            time.sleep(max(0.15, _est_sec * 0.07))
+            _pct = _i / 10
+            _upload_bar.progress(_pct, text=f"📤 正在上传文件...（{int(_pct * 100)}%）")
+
+        _upload_status.caption("💾 正在保存文件到服务器...")
         file_path, file_type = save_uploaded_file(uploaded)
+        _upload_bar.progress(1.0, text="✅ 上传完成！")
+        _upload_status.empty()
+        time.sleep(0.3)
+        _upload_bar.empty()
+
         material_id = create_material(file_path, file_type, title=uploaded.name)
 
         st.session_state.file_path = file_path
@@ -638,12 +665,61 @@ elif st.session_state.step == "processing":
             sub_steps[0]["status"] = "done"
             detail_placeholder.caption(f"音频时长：{duration // 60}分{duration % 60}秒，预计转录{est}")
 
-            # Step 2.2: 语音转录
+            # Step 2.2: 语音转录（含动态进度条，Whisper API 耗时 30s-2min）
             sub_steps[1]["status"] = "active"
             status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
             progress_placeholder.progress(0.3)
 
-            transcript = transcribe(Path(audio_path))
+            # 动态进度条：在转录期间给用户反馈
+            transcribe_bar = st.empty()
+            transcribe_tip = st.empty()
+            _transcribe_tip_msgs = [
+                "🎙️ 正在识别语音...",
+                "🎙️ 正在识别语音...（Whisper 大模型处理中）",
+                "🎙️ 音频较长时需要 1-2 分钟，请勿关闭页面",
+                "🎙️ 快好了，稍等一下...",
+            ]
+
+            import threading
+            _transcribe_done = threading.Event()
+            _transcribe_result = [None]
+            _transcribe_error = [None]
+
+            def _do_transcribe():
+                try:
+                    _transcribe_result[0] = transcribe(Path(audio_path))
+                except Exception as e:
+                    _transcribe_error[0] = e
+                finally:
+                    _transcribe_done.set()
+
+            _t = threading.Thread(target=_do_transcribe, daemon=True)
+            _t.start()
+
+            # 动态更新进度条，直到转录完成
+            _tick = 0
+            _tip_idx = 0
+            while not _transcribe_done.wait(timeout=1.5):
+                _tick += 1.5
+                # 进度条 0.3 ~ 0.58，用时间估算，最多推到 90%
+                _transcribe_progress = min(0.3 + (_tick / max(duration, 30)) * 0.28, 0.58)
+                progress_placeholder.progress(_transcribe_progress)
+                _tip_msg = _transcribe_tip_msgs[min(_tip_idx // 3, len(_transcribe_tip_msgs) - 1)]
+                elapsed_str = f"{int(_tick // 60)}分{int(_tick % 60)}秒" if _tick >= 60 else f"{int(_tick)}秒"
+                transcribe_bar.progress(
+                    min(_tick / max(duration, 30), 0.95),
+                    text=f"{_tip_msg}（已等待 {elapsed_str}）"
+                )
+                _tip_idx += 1
+
+            _t.join()
+            transcribe_bar.empty()
+            transcribe_tip.empty()
+
+            if _transcribe_error[0]:
+                raise _transcribe_error[0]
+
+            transcript = _transcribe_result[0]
             update_material(st.session_state.material_id, transcript=transcript, status="transcribed", duration=duration)
 
             sub_steps[1]["status"] = "done"
