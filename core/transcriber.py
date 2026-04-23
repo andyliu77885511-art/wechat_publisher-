@@ -4,18 +4,29 @@ Whisper 转录模块
 """
 import os
 from pathlib import Path
-from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from typing import Optional
-_client: Optional[Groq] = None
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from groq import Groq as GroqClient
+
+_client: Optional[object] = None
 
 
-def _get_client() -> Groq:
+def _get_client():
     global _client
     if _client is None:
+        # 懒加载：只有真正调用转录时才 import groq
+        try:
+            from groq import Groq
+        except ImportError:
+            raise ImportError(
+                "groq 包未安装。如需使用音频转录功能，请安装：pip install groq"
+            )
+
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             # 兼容 Streamlit Secrets
