@@ -13,6 +13,7 @@ from core.file_handler import (
     get_audio_path,
     get_duration_seconds,
     estimate_transcribe_minutes,
+    extract_text_from_doc,
 )
 from core.transcriber import transcribe
 from core.generator import generate_article
@@ -454,17 +455,16 @@ if st.session_state.step == "upload":
 
     st.markdown(
         '<div class="upload-box">'
-        '<span class="upload-icon">🎙️</span>'
-        '<div class="upload-title">拖拽文件到此处，或点击下方按钮选择</div>'
-        f'<div class="upload-hint">支持格式：{", ".join(config.ALLOWED_AUDIO_TYPES)} &nbsp;|&nbsp; '
-        f'最大 {config.MAX_FILE_SIZE_MB}MB</div>'
+        '<span class="upload-icon">📂</span>'
+        '<div class="upload-title">拖拽文件到此处，或点击下方按钮选择文件</div>'
+        '<div class="upload-hint">支持格式：音视频（mp3 / mp4 / m4a / wav / avi / mov / mkv / flv / wmv）| 文档（pdf / txt / docx / md）</div>'
         '</div>',
         unsafe_allow_html=True,
     )
 
     uploaded = st.file_uploader(
         "选择文件",
-        type=config.ALLOWED_AUDIO_TYPES,
+        type=config.ALLOWED_FILE_TYPES,
         label_visibility="collapsed",
     )
 
@@ -505,36 +505,97 @@ elif st.session_state.step == "processing":
     status_placeholder = st.empty()
     detail_placeholder = st.empty()
 
-    sub_steps = [
-        {"label": "提取音频", "status": "wait"},
-        {"label": "语音转录", "status": "wait"},
-        {"label": "AI 生成文章", "status": "wait"},
-        {"label": "保存结果", "status": "wait"},
-    ]
+    # 判断文件类型：文档走提取文本流程，音视频走转录流程
+    doc_types = {"pdf", "txt", "docx", "md"}
+    is_doc = st.session_state.file_type in doc_types
+
+    if is_doc:
+        sub_steps = [
+            {"label": "解析文档", "status": "wait"},
+            {"label": "AI 生成文章", "status": "wait"},
+            {"label": "保存结果", "status": "wait"},
+        ]
+    else:
+        sub_steps = [
+            {"label": "提取音频", "status": "wait"},
+            {"label": "语音转录", "status": "wait"},
+            {"label": "AI 生成文章", "status": "wait"},
+            {"label": "保存结果", "status": "wait"},
+        ]
 
     try:
-        # Step 2.1: 提取音频
-        sub_steps[0]["status"] = "active"
-        status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
-        progress_placeholder.progress(0.1)
+        if is_doc:
+            # 文档处理分支：提取文本后直接生成文章
+            sub_steps[0]["status"] = "active"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(0.15)
+            st.info("正在解析文档...")
 
-        audio_path = get_audio_path(st.session_state.file_path, st.session_state.file_type)
-        duration = get_duration_seconds(audio_path)
-        est = estimate_transcribe_minutes(duration)
+            transcript = extract_text_from_doc(
+                st.session_state.file_path,
+                st.session_state.file_type,
+            )
+            st.session_state.transcript = transcript
+            update_material(st.session_state.material_id, transcript=transcript, status="transcribed")
 
-        sub_steps[0]["status"] = "done"
-        detail_placeholder.caption(f"音频时长：{duration // 60}分{duration % 60}秒，预计转录{est}")
+            sub_steps[0]["status"] = "done"
+            detail_placeholder.caption(f"文档字数：{word_count(transcript)}")
 
-        # Step 2.2: 语音转录
-        sub_steps[1]["status"] = "active"
-        status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
-        progress_placeholder.progress(0.3)
+            # Step 2.2: AI 生成文章（跳过转录步骤）
+            sub_steps[1]["status"] = "active"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(0.5)
 
-        transcript = transcribe(Path(audio_path))
-        update_material(st.session_state.material_id, transcript=transcript, status="transcribed", duration=duration)
+            result = generate_article(transcript)
 
-        sub_steps[1]["status"] = "done"
-        st.session_state.transcript = transcript
+            sub_steps[1]["status"] = "done"
+            st.session_state.article_title = result["title"]
+            st.session_state.article_content = result["content"]
+
+            # Step 2.3: 保存结果
+            sub_steps[2]["status"] = "active"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(0.9)
+
+            article_id = create_article(
+                material_id=st.session_state.material_id,
+                title=result["title"],
+                content=result["content"],
+            )
+            update_material(st.session_state.material_id, status="generated")
+            st.session_state.article_id = article_id
+
+            sub_steps[2]["status"] = "done"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(1.0)
+
+            time.sleep(0.5)
+            st.session_state.step = "preview"
+            st.rerun()
+        else:
+            # 音视频处理分支：原流程
+            # Step 2.1: 提取音频
+            sub_steps[0]["status"] = "active"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(0.1)
+
+            audio_path = get_audio_path(st.session_state.file_path, st.session_state.file_type)
+            duration = get_duration_seconds(audio_path)
+            est = estimate_transcribe_minutes(duration)
+
+            sub_steps[0]["status"] = "done"
+            detail_placeholder.caption(f"音频时长：{duration // 60}分{duration % 60}秒，预计转录{est}")
+
+            # Step 2.2: 语音转录
+            sub_steps[1]["status"] = "active"
+            status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
+            progress_placeholder.progress(0.3)
+
+            transcript = transcribe(Path(audio_path))
+            update_material(st.session_state.material_id, transcript=transcript, status="transcribed", duration=duration)
+
+            sub_steps[1]["status"] = "done"
+            st.session_state.transcript = transcript
 
         # Step 2.3: AI 生成文章
         sub_steps[2]["status"] = "active"
