@@ -704,6 +704,7 @@ if st.session_state.step == "upload":
         label_visibility="collapsed",
     )
 
+    # ── 文件选择后立即保存（提前到 file_uploader 检测阶段）──────────────────────
     file_ready = False
 
     if uploaded:
@@ -715,15 +716,52 @@ if st.session_state.step == "upload":
                 unsafe_allow_html=True,
             )
         else:
-            file_ready = True
-            # 预计上传时间提示（按 2MB/s 估算）
-            if file_size_mb > 2:
-                est_upload_sec = int(file_size_mb / 2)
-                if est_upload_sec < 60:
-                    est_upload_str = f"约 {est_upload_sec} 秒"
-                else:
-                    est_upload_str = f"约 {est_upload_sec // 60} 分钟"
-                st.caption(f"⏱️ 文件较大，点击「开始处理」后预计上传 {est_upload_str}，请耐心等待")
+            # 用文件名+大小作为唯一标识，避免同一个文件重复保存
+            _upload_key = f"{uploaded.name}_{uploaded.size}"
+            if st.session_state.get("file_saved") and st.session_state.get("_upload_key") == _upload_key:
+                # 已保存过，直接复用
+                file_ready = True
+                st.markdown(
+                    '<div class="success-box">✅ 文件已上传到本地，可直接点击「开始处理」</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                # 首次选择该文件，立即保存并显示进度条
+                _est_sec = max(1, int(file_size_mb / 2)) if file_size_mb > 1 else 1
+                _upload_bar = st.progress(0, text="📤 正在上传文件，请稍候...")
+
+                # 进度条推到 60% 给用户先感受到反馈
+                for _i in range(1, 7):
+                    time.sleep(max(0.1, _est_sec * 0.06))
+                    _upload_bar.progress(_i / 10, text=f"📤 正在上传文件...（{_i * 10}%）")
+
+                # 真正写磁盘
+                _file_path, _file_type = save_uploaded_file(uploaded)
+                _material_id = create_material(_file_path, _file_type, title=uploaded.name)
+
+                # 推到 100%
+                for _i in range(7, 11):
+                    time.sleep(0.05)
+                    _upload_bar.progress(_i / 10, text=f"📤 正在上传文件...（{_i * 10}%）")
+
+                _upload_bar.empty()
+
+                # 写入 session_state，供「开始处理」直接使用
+                st.session_state.file_saved = True
+                st.session_state._upload_key = _upload_key
+                st.session_state.file_path = _file_path
+                st.session_state.file_type = _file_type
+                st.session_state.material_id = _material_id
+
+                file_ready = True
+                st.markdown(
+                    '<div class="success-box">✅ 文件已上传到本地，可直接点击「开始处理」</div>',
+                    unsafe_allow_html=True,
+                )
+    else:
+        # 用户清除了文件，重置保存状态
+        st.session_state.file_saved = False
+        st.session_state._upload_key = None
 
     # 写作风格配置（文章级，每次处理前选择）
     st.divider()
@@ -750,33 +788,8 @@ if st.session_state.step == "upload":
 
     st.divider()
 
-    # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
+    # 「开始处理」按钮：只负责跳页，文件操作已在上方完成
     if st.button("🚀 开始处理", type="primary", use_container_width=True, disabled=not file_ready):
-        # 上传进度反馈
-        _file_size_mb = uploaded.size / (1024 * 1024)
-        _est_sec = max(2, int(_file_size_mb / 2)) if _file_size_mb > 1 else 1
-        _upload_bar = st.progress(0, text="📤 正在上传文件，请稍候...")
-        _upload_status = st.empty()
-
-        # 模拟上传进度（实际 IO 在 save_uploaded_file 中完成）
-        # 先推进到 70%，给用户反馈，剩余 30% 在 save 完成后完成
-        for _i in range(1, 8):
-            time.sleep(max(0.15, _est_sec * 0.07))
-            _pct = _i / 10
-            _upload_bar.progress(_pct, text=f"📤 正在上传文件...（{int(_pct * 100)}%）")
-
-        _upload_status.caption("💾 正在保存文件到服务器...")
-        file_path, file_type = save_uploaded_file(uploaded)
-        _upload_bar.progress(1.0, text="✅ 上传完成！")
-        _upload_status.empty()
-        time.sleep(0.3)
-        _upload_bar.empty()
-
-        material_id = create_material(file_path, file_type, title=uploaded.name)
-
-        st.session_state.file_path = file_path
-        st.session_state.file_type = file_type
-        st.session_state.material_id = material_id
         st.session_state.step = "processing"
         st.rerun()
 
