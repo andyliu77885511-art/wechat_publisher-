@@ -330,8 +330,8 @@ def get_system_prompt(category: str, style: str) -> str:
 
 
 # ===== Streamlit 页面配置 =====
-PAGE_TITLE: str = "公众号自动发布工具"
-PAGE_ICON: str = "📰"
+PAGE_TITLE: str = "WeChat Tool"
+PAGE_ICON: str = "🔖"
 PAGE_VERSION: str = "MVP v1.2"
 
 

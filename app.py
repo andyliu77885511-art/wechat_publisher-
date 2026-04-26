@@ -138,13 +138,13 @@ st.markdown("""
 .app-header {
     animation: fadeInDown 0.6s ease both;
     font-family: 'Clash Display', 'Satoshi', sans-serif !important;
-    font-size: 2.1rem;
+    font-size: 2.4rem;
     font-weight: 700;
-    letter-spacing: -0.8px;
-    color: var(--text-primary) !important;
-    -webkit-text-fill-color: unset !important;
-    background: none !important;
-    background-clip: unset !important;
+    letter-spacing: -1.2px;
+    background: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
     margin-bottom: 0.15rem;
     line-height: 1.1;
 }
