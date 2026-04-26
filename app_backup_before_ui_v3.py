@@ -4,6 +4,7 @@ app.py — 公众号自动发布工具 Streamlit 主入口
 """
 import streamlit as st
 from pathlib import Path
+import threading
 import time
 import logging
 
@@ -44,487 +45,364 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式（全面美化版）───────────────────────────────────────────────────────
+# ── openclaw.ai 风格 CSS（全面改版 v2）─────────────────────────────────────────
 st.markdown("""
 <style>
-/* ===== OpenClaw 风格设计系统 ===== */
-/* 参考: openclaw.ai — 深空黑 + Coral红 + 玻璃卡片 + 极简极客调性 */
-
-/* ===== 字体引入 ===== */
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&f[]=satoshi@400,500,700&display=swap');
-
-/* ===== CSS 变量 ===== */
-:root {
-    --coral-bright: #FF4D4D;
-    --coral-dim: rgba(255, 77, 77, 0.7);
-    --coral-glow: rgba(255, 77, 77, 0.25);
-    --bg-primary: #050810;
-    --bg-secondary: #0a0e1a;
-    --bg-card: rgba(255, 255, 255, 0.04);
-    --bg-card-hover: rgba(255, 255, 255, 0.07);
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-card: rgba(255, 255, 255, 0.1);
-    --text-primary: #f0f0f0;
-    --text-secondary: rgba(255, 255, 255, 0.55);
-    --text-muted: rgba(255, 255, 255, 0.32);
-    --accent: #FF4D4D;
-    --accent-cyan: #00e5cc;
-    --success: #34d399;
-    --warning: #fbbf24;
-    --error: #f87171;
-}
-
 /* ===== 动画 Keyframes ===== */
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
+    from { opacity: 0; transform: translateY(-24px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideInUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes coralPulse {
-    0%   { box-shadow: 0 0 0 0 var(--coral-glow); }
-    70%  { box-shadow: 0 0 0 10px rgba(255,77,77,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,77,77,0); }
+@keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
 }
-@keyframes clawFloat {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-4px); }
+@keyframes pulse-glow-orange {
+    0%   { box-shadow: 0 0 0 0 rgba(255,140,0,0.55); }
+    70%  { box-shadow: 0 0 0 10px rgba(255,140,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,140,0,0); }
 }
-@keyframes borderGlow {
-    0%   { border-color: rgba(255,77,77,0.4); }
-    50%  { border-color: rgba(255,77,77,0.8); box-shadow: 0 0 20px rgba(255,77,77,0.2); }
-    100% { border-color: rgba(255,77,77,0.4); }
+@keyframes borderPulse {
+    0%, 100% { border-color: rgba(255,140,0,0.5); }
+    50%       { border-color: rgba(255,200,50,0.9); }
 }
 
-/* ===== 全局背景 ===== */
+/* ===== 全局背景（深蓝黑渐变，openclaw.ai 调性）===== */
 .stApp {
-    background:
-        radial-gradient(ellipse at 60% 20%, rgba(180,0,0,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 10% 80%, rgba(120,0,0,0.10) 0%, transparent 45%),
-        #080808 !important;
+    background: linear-gradient(145deg, #070d1a 0%, #0d1b2a 40%, #111827 100%) !important;
     min-height: 100vh;
-    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
-
-/* 背景星空纹理 */
-.stApp::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background:
-        radial-gradient(ellipse at 20% 50%, rgba(255,77,77,0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(0,229,204,0.03) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(255,77,77,0.02) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-}
-
 .main .block-container {
-    max-width: 780px;
-    padding-top: 2.5rem;
-    padding-bottom: 4rem;
-    position: relative;
-    z-index: 1;
+    max-width: 840px;
+    padding-top: 2rem;
+    padding-bottom: 3.5rem;
 }
 
-/* ===== 全局文字颜色 ===== */
-.stApp, .stApp * {
-    color: var(--text-primary);
+/* ===== Hero 头部区域 ===== */
+.hero-wrapper {
+    animation: fadeInDown 0.65s ease both;
+    padding: 2rem 0 1.5rem 0;
+    text-align: center;
 }
-
-/* ===== Header ===== */
-.app-header {
-    animation: fadeInDown 0.6s ease both;
-    font-family: 'Clash Display', 'Satoshi', sans-serif !important;
-    font-size: 2.1rem;
-    font-weight: 700;
-    letter-spacing: -0.8px;
-    color: var(--text-primary) !important;
-    -webkit-text-fill-color: unset !important;
-    background: none !important;
-    background-clip: unset !important;
-    margin-bottom: 0.15rem;
-    line-height: 1.1;
+.hero-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, rgba(255,140,0,0.18), rgba(255,180,50,0.12));
+    border: 1px solid rgba(255,165,0,0.35);
+    border-radius: 999px;
+    color: #FFB74D;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 4px 14px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
 }
-.app-header-accent {
-    color: var(--coral-bright);
+.hero-title {
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,200,80,0.95) 55%, #FF8C00 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    line-height: 1.15;
+    margin-bottom: 0.6rem;
 }
-.app-subtitle {
-    animation: fadeInDown 0.8s ease both;
-    color: var(--text-muted) !important;
-    font-size: 0.82rem;
-    margin-top: 0;
-    font-family: 'Satoshi', sans-serif;
+.hero-sub {
+    color: rgba(255,255,255,0.42);
+    font-size: 0.9rem;
+    font-weight: 400;
     letter-spacing: 0.2px;
+    line-height: 1.6;
+}
+.hero-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,165,0,0.25), transparent);
+    margin: 1.5rem auto;
+    max-width: 300px;
 }
 
 /* ===== 分隔线 ===== */
 hr {
     border: none !important;
     height: 1px !important;
-    background: var(--border-subtle) !important;
+    background: rgba(255,255,255,0.07) !important;
     margin: 1.5rem 0 !important;
 }
 
-/* ===== 步骤指示器（Claw 风格胶囊）===== */
-.step-capsule-done {
-    display: inline-block;
-    background: rgba(52, 211, 153, 0.12);
-    color: var(--success) !important;
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    border-radius: 6px;
-    padding: 3px 12px;
+/* ====================================================================
+   公众号定位选择器（全新卡片网格设计，重点改版区域）
+   ===================================================================== */
+.pos-section-title {
+    color: rgba(255,255,255,0.55);
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.2px;
-    animation: slideInUp 0.3s ease both;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0 0 1rem 0;
+    animation: slideInUp 0.4s ease both;
+}
+
+/* 每列里的定位按钮统一用 st.button，这里覆盖成卡片样式 */
+/* 通过 data-testid 精准定位定位选择器区域内的按钮 */
+.pos-btn-grid .stButton > button {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    border-radius: 14px !important;
+    color: rgba(255,255,255,0.75) !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    padding: 0.9rem 0.6rem !important;
+    width: 100% !important;
+    min-height: 80px !important;
+    box-shadow: none !important;
+    transition: all 0.22s ease !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    backdrop-filter: blur(6px) !important;
+}
+.pos-btn-grid .stButton > button:hover {
+    background: rgba(255,140,0,0.1) !important;
+    border-color: rgba(255,140,0,0.45) !important;
+    color: #FFB74D !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255,140,0,0.12) !important;
+}
+/* 选中状态：橙色高亮卡片 */
+.pos-btn-grid .stButton > button[data-active="true"],
+.pos-btn-active .stButton > button {
+    background: linear-gradient(135deg, rgba(255,140,0,0.2), rgba(255,165,0,0.12)) !important;
+    border-color: rgba(255,140,0,0.65) !important;
+    color: #FFB74D !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 18px rgba(255,140,0,0.22), inset 0 1px 0 rgba(255,200,80,0.2) !important;
+    animation: borderPulse 2.5s ease infinite !important;
+}
+
+/* ===== 步骤指示器（胶囊风格）===== */
+.step-capsule-done {
+    display: inline-block;
+    background: rgba(67,233,123,0.18);
+    color: #43E97B !important;
+    border: 1px solid rgba(67,233,123,0.38);
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: slideInUp 0.4s ease both;
 }
 .step-capsule-active {
     display: inline-block;
-    background: rgba(255, 77, 77, 0.12);
-    border: 1px solid rgba(255, 77, 77, 0.4);
-    border-radius: 6px;
-    padding: 3px 12px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    animation: coralPulse 1.8s infinite, slideInUp 0.3s ease both;
-    /* 渐变文字 */
-    background-image: linear-gradient(135deg, #ff2d2d 0%, #ff7070 50%, #ffaaaa 100%), rgba(255,77,77,0.12);
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
+    background: linear-gradient(90deg, #FF8C00, #FFA500);
+    color: #fff !important;
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    animation: pulse-glow-orange 1.6s infinite, slideInUp 0.4s ease both;
 }
 .step-capsule-wait {
     display: inline-block;
-    background: transparent;
-    color: var(--text-muted) !important;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 3px 12px;
-    font-size: 0.78rem;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.28) !important;
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 0.8rem;
     font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.07);
 }
 
-/* ===== 上传区卡片（OpenClaw 风格）===== */
+/* ===== 上传区卡片 ===== */
 .upload-box {
-    border: 1.5px dashed rgba(255, 77, 77, 0.3);
-    border-radius: 14px;
-    padding: 3rem 2rem;
+    border: 2px dashed rgba(255,165,0,0.38);
+    border-radius: 20px;
+    padding: 3.2rem 2rem;
     text-align: center;
-    background: rgba(255, 77, 77, 0.03);
-    margin: 1rem 0;
-    transition: all 0.25s ease;
-    animation: slideInUp 0.45s ease both;
-    animation-delay: 0.08s;
+    background: linear-gradient(135deg, rgba(255,140,0,0.07) 0%, rgba(255,165,0,0.03) 100%);
+    margin: 0.8rem 0;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.5s ease both;
 }
 .upload-box:hover {
-    border-color: rgba(255, 77, 77, 0.6);
-    background: rgba(255, 77, 77, 0.06);
-    animation: borderGlow 2s ease infinite;
+    border-color: rgba(255,165,0,0.58);
+    background: linear-gradient(135deg, rgba(255,140,0,0.11) 0%, rgba(255,165,0,0.06) 100%);
+    box-shadow: 0 4px 24px rgba(255,140,0,0.1);
 }
-.upload-icon {
-    font-size: 2.8rem;
-    display: block;
-    margin-bottom: 0.6rem;
-    filter: drop-shadow(0 0 8px rgba(255,77,77,0.5));
-    animation: clawFloat 3s ease-in-out infinite;
-}
-.upload-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-primary) !important;
-    margin-bottom: 0.3rem;
-    font-family: 'Clash Display', 'Satoshi', sans-serif;
-}
-.upload-title-accent {
-    color: var(--coral-bright);
-}
-.upload-hint {
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    line-height: 1.5;
-}
+.upload-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px rgba(255,165,0,0.5)); }
+.upload-title { font-size: 1.1rem; font-weight: 700; color: #FFA500; margin-bottom: 0.3rem; }
+.upload-hint { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
 
 /* ===== 子步骤状态 ===== */
-.step-done  { color: var(--success) !important; font-weight: 600; }
-.step-active { color: var(--coral-bright) !important; font-weight: 600; }
-.step-wait  { color: var(--text-muted) !important; }
+.step-done   { color: #43E97B; font-weight: 600; }
+.step-active { color: #FFA500; font-weight: 600; }
+.step-wait   { color: rgba(255,255,255,0.28); }
 
-/* ===== 提示框（玻璃卡片风格）===== */
+/* ===== 提示框 ===== */
 .warn-box {
-    background: rgba(251, 191, 36, 0.06);
-    border: 1px solid rgba(251, 191, 36, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
+    background: linear-gradient(135deg, rgba(255,140,0,0.14), rgba(255,140,0,0.05));
+    border: 1px solid rgba(255,140,0,0.48);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
     margin: 1rem 0;
-    color: var(--warning) !important;
-    font-size: 0.88rem;
-    animation: slideInUp 0.35s ease both;
+    color: #FFB74D;
+    animation: slideInUp 0.4s ease both;
 }
 .success-box {
-    background: rgba(52, 211, 153, 0.06);
-    border: 1px solid rgba(52, 211, 153, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
+    background: linear-gradient(135deg, rgba(67,233,123,0.14), rgba(67,233,123,0.05));
+    border: 1px solid rgba(67,233,123,0.38);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
     margin: 1rem 0;
-    color: var(--success) !important;
-    font-size: 0.88rem;
-    animation: slideInUp 0.35s ease both;
+    color: #43E97B;
+    animation: slideInUp 0.4s ease both;
 }
 .error-box {
-    background: rgba(248, 113, 113, 0.06);
-    border: 1px solid rgba(248, 113, 113, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
+    background: linear-gradient(135deg, rgba(229,57,53,0.14), rgba(229,57,53,0.05));
+    border: 1px solid rgba(229,57,53,0.38);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
     margin: 1rem 0;
-    color: var(--error) !important;
-    font-size: 0.88rem;
-    animation: slideInUp 0.35s ease both;
+    color: #EF9A9A;
+    animation: slideInUp 0.4s ease both;
 }
 
-/* ===== 文章编辑区（左 Coral 条）===== */
+/* ===== 文章编辑区：左彩条 ===== */
 .editor-card {
-    border-left: 3px solid var(--coral-bright);
-    border-radius: 0 10px 10px 0;
-    padding: 1.2rem 1.4rem;
-    background: var(--bg-card);
+    border-left: 3px solid #FFA500;
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.5rem;
+    background: rgba(255,255,255,0.035);
     margin-bottom: 1rem;
-    animation: slideInUp 0.45s ease both;
+    animation: slideInUp 0.5s ease both;
 }
 
-/* ===== 输入框 ===== */
+/* ===== 输入框样式 ===== */
 .stTextInput > div > div > input,
-.stTextArea > div > div > textarea {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid var(--border-card) !important;
-    border-radius: 8px !important;
-    color: var(--text-primary) !important;
-    font-family: 'Satoshi', sans-serif !important;
-    transition: border-color 0.2s, box-shadow 0.2s;
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div > select {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    transition: border-color 0.25s, box-shadow 0.25s;
 }
 .stTextInput > div > div > input:focus,
-.stTextArea > div > div > textarea:focus {
-    border-color: var(--coral-bright) !important;
-    box-shadow: 0 0 0 2px var(--coral-glow) !important;
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div > select:focus {
+    border-color: #FFA500 !important;
+    box-shadow: 0 2px 0 0 #FFA500, 0 0 14px rgba(255,165,0,0.28) !important;
     outline: none !important;
-    background: rgba(255,255,255,0.055) !important;
 }
 
-/* ===== 按钮（Coral 主色）===== */
+/* ===== 主操作按钮（橙色渐变）===== */
 .stButton > button {
-    background: linear-gradient(135deg, #cc0000 0%, #ff4d4d 100%) !important;
+    background: linear-gradient(90deg, #FF8C00, #FFA500) !important;
     color: #fff !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     font-weight: 700 !important;
-    font-size: 0.9rem !important;
-    padding: 0.55rem 1.4rem !important;
-    font-family: 'Satoshi', sans-serif !important;
-    letter-spacing: 0.1px;
-    box-shadow: 0 2px 12px rgba(255,77,77,0.3) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+    font-size: 0.93rem !important;
+    padding: 0.55rem 1.5rem !important;
+    box-shadow: 0 4px 18px rgba(255,140,0,0.32) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    background: #ff3333 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(255,77,77,0.45) !important;
+    transform: translateY(-2px) scale(1.01) !important;
+    box-shadow: 0 6px 24px rgba(255,140,0,0.48) !important;
 }
 .stButton > button:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 1px 6px rgba(255,77,77,0.25) !important;
-}
-/* 次要按钮 */
-.stButton > button[kind="secondary"] {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border-card) !important;
-    box-shadow: none !important;
-    color: var(--text-secondary) !important;
-}
-.stButton > button[kind="secondary"]:hover {
-    background: var(--bg-card-hover) !important;
-    border-color: rgba(255,77,77,0.3) !important;
-    box-shadow: none !important;
-    transform: translateY(-1px) !important;
+    transform: translateY(0) scale(0.98) !important;
+    box-shadow: 0 2px 8px rgba(255,140,0,0.28) !important;
 }
 
-/* ===== 下载按钮 ===== */
+/* ===== 下载按钮（绿色）===== */
 .stDownloadButton > button {
-    background: rgba(52, 211, 153, 0.1) !important;
-    color: var(--success) !important;
-    border: 1px solid rgba(52, 211, 153, 0.35) !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-family: 'Satoshi', sans-serif !important;
-    box-shadow: none !important;
-    transition: all 0.15s ease !important;
+    background: linear-gradient(90deg, #43E97B, #38F9D7) !important;
+    color: #060d14 !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 18px rgba(67,233,123,0.28) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
 }
 .stDownloadButton > button:hover {
-    background: rgba(52, 211, 153, 0.18) !important;
-    border-color: rgba(52, 211, 153, 0.6) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(52,211,153,0.2) !important;
+    transform: translateY(-2px) scale(1.01) !important;
+    box-shadow: 0 6px 24px rgba(67,233,123,0.48) !important;
 }
 
-/* ===== 标签/Caption ===== */
-.stCaption, .stApp label {
-    color: var(--text-secondary) !important;
-    font-size: 0.82rem !important;
-}
-.stMarkdown p {
-    color: var(--text-primary) !important;
-    line-height: 1.65;
+/* ===== label / caption 颜色 ===== */
+.stCaption, label, .stMarkdown p {
+    color: rgba(255,255,255,0.62) !important;
 }
 
-/* ===== 进度条 ===== */
+/* ===== 进度条（橙色渐变）===== */
 .stProgress > div > div > div {
-    background: var(--coral-bright) !important;
+    background: linear-gradient(90deg, #FF8C00, #FFA500) !important;
     border-radius: 999px !important;
 }
 .stProgress > div > div {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255,255,255,0.07) !important;
     border-radius: 999px !important;
 }
 
-/* ===== Expander（折叠区）===== */
+/* ===== Expander ===== */
 .streamlit-expanderHeader {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: 8px !important;
-    color: var(--text-primary) !important;
+    background: rgba(255,255,255,0.045) !important;
+    border-radius: 10px !important;
+    color: rgba(255,255,255,0.78) !important;
     font-weight: 600 !important;
-    transition: background 0.2s;
-}
-.streamlit-expanderHeader:hover {
-    background: var(--bg-card-hover) !important;
 }
 
 /* ===== file uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
 div[data-testid="stFileUploader"] section {
-    background: rgba(255,77,77,0.04) !important;
-    border: 1.5px dashed rgba(255,77,77,0.25) !important;
-    border-radius: 10px !important;
-    transition: border-color 0.2s, background 0.2s;
-}
-div[data-testid="stFileUploader"] section:hover {
-    border-color: rgba(255,77,77,0.5) !important;
-    background: rgba(255,77,77,0.07) !important;
+    background: rgba(255,140,0,0.04) !important;
+    border: 1.5px dashed rgba(255,165,0,0.38) !important;
+    border-radius: 12px !important;
 }
 
-/* ===== 标题（h2/h3）===== */
-h1, h2, h3 {
-    font-family: 'Clash Display', 'Satoshi', sans-serif !important;
+/* ===== subheader ===== */
+h2, h3 {
+    color: #ffffff;
     font-weight: 700 !important;
-    background: linear-gradient(135deg, #ff2d2d 0%, #ff7070 50%, #ffaaaa 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    letter-spacing: -0.3px;
 }
 
-/* claw-accent 前缀标记 */
-.claw-accent {
-    color: var(--coral-bright);
-    margin-right: 0.35rem;
-    font-weight: 600;
+/* ===== Streamlit 原生 alert ===== */
+div[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    border: none !important;
+    background: rgba(255,255,255,0.06) !important;
 }
 
-/* ===== Section 标题行样式 ===== */
-.section-title-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    gap: 0.4rem;
+/* ===== Radio（写作风格）===== */
+.stRadio > div {
+    gap: 0.5rem;
 }
-.section-title-main {
-    font-family: 'Clash Display', 'Satoshi', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.2px;
-}
-
-/* ===== 公众号定位选择器容器 ===== */
-.selector-container {
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: border-color 0.2s;
-}
-.selector-container:hover {
-    border-color: rgba(255,77,77,0.2);
-}
-.selector-label {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    white-space: nowrap;
-}
-.selector-label-accent {
-    color: var(--coral-bright);
-}
-
-/* ===== Selectbox ===== */
-div[data-testid="stSelectbox"] > div > div {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid var(--border-card) !important;
-    border-radius: 8px !important;
-    color: var(--text-primary) !important;
-}
-
-/* ===== Radio 按钮 ===== */
 .stRadio > div > label {
-    color: var(--text-secondary) !important;
-    transition: color 0.15s;
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    border-radius: 8px !important;
+    padding: 4px 12px !important;
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s !important;
+    cursor: pointer !important;
 }
 .stRadio > div > label:hover {
-    color: var(--text-primary) !important;
-}
-[data-testid="stRadio"] label[data-testid="stMarkdownContainer"] {
-    color: var(--text-primary) !important;
-}
-
-/* ===== Info/Warning/Success 原生提示 ===== */
-div[data-testid="stAlert"] {
-    border-radius: 10px !important;
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border-subtle) !important;
-}
-
-/* ===== Divider ===== */
-[data-testid="stDivider"] {
-    border-color: var(--border-subtle) !important;
-}
-
-/* ===== Sidebar（如果有）===== */
-[data-testid="stSidebar"] {
-    background: var(--bg-secondary) !important;
-    border-right: 1px solid var(--border-subtle) !important;
-}
-
-/* ===== 滚动条美化 ===== */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-    background: rgba(255,77,77,0.25);
-    border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(255,77,77,0.45); }
-
-/* ===== 选中文字颜色 ===== */
-::selection {
-    background: rgba(255,77,77,0.25);
-    color: #fff;
+    border-color: rgba(255,165,0,0.4) !important;
+    color: #FFB74D !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # ── 初始化 ───────────────────────────────────────────────────────────────────────
 init_db()
@@ -601,17 +479,19 @@ def render_sub_steps(steps_status):
 
 # ── 页面头部 ─────────────────────────────────────────────────────────────────────
 
-col_title, col_ver = st.columns([5, 1])
-with col_title:
-    st.markdown(
-        f'<div class="app-header">{config.PAGE_ICON} {config.PAGE_TITLE}</div>',
-        unsafe_allow_html=True,
-    )
-with col_ver:
-    st.markdown(
-        f'<div class="app-subtitle">{config.PAGE_VERSION}</div>',
-        unsafe_allow_html=True,
-    )
+# ── 页面 Hero 头部区域 ─────────────────────────────────────────────────────────
+
+st.markdown(
+    '''
+    <div class="hero-wrapper">
+        <div class="hero-badge">🤖 AI 内容生产工具 · MVP v1.2</div>
+        <div class="hero-title">公众号自动发布工具</div>
+        <div class="hero-sub">上传音视频或文档 → AI 转录 + 写作 → 一键发布微信公众号</div>
+        <div class="hero-divider"></div>
+    </div>
+    ''',
+    unsafe_allow_html=True,
+)
 
 # 配置检查
 cfg_result = config.validate_config()
@@ -622,51 +502,81 @@ if not cfg_result["ok"]:
         unsafe_allow_html=True,
     )
 
+# ── 公众号定位选择器（全新卡片网格，常驻顶部）────────────────────────────────────
+
+# 定位信息：(图标, 名称, 一句话说明)
+_POSITIONS = [
+    ("📈", "财经",    "宏观/市场/投资深度分析"),
+    ("💡", "科技",    "前沿技术与产品趋势"),
+    ("🌿", "生活方式", "生活美学与消费决策"),
+    ("📚", "教育",    "成长学习与教育观点"),
+    ("💼", "职场",    "职场逻辑与升职策略"),
+    ("✨", "其他",    "AI 自动识别领域风格"),
+]
+
+st.markdown('<p class="pos-section-title">📌 公众号定位</p>', unsafe_allow_html=True)
+
+# 两行三列卡片网格
+_current_cat = st.session_state.category
+if _current_cat not in [p[1] for p in _POSITIONS]:
+    _current_cat = "其他"
+
+st.markdown('<div class="pos-btn-grid">', unsafe_allow_html=True)
+
+_row1 = _POSITIONS[:3]
+_row2 = _POSITIONS[3:]
+
+_cols1 = st.columns(3, gap="small")
+for i, (icon, name, desc) in enumerate(_row1):
+    with _cols1[i]:
+        _is_active = (_current_cat == name)
+        _label = f"{icon}\n**{name}**\n{desc}" if _is_active else f"{icon}\n{name}\n{desc}"
+        _wrapper_class = "pos-btn-active" if _is_active else ""
+        st.markdown(f'<div class="{_wrapper_class}">', unsafe_allow_html=True)
+        if st.button(
+            f"{icon} {name}\n{desc}",
+            key=f"pos_btn_{name}",
+            use_container_width=True,
+        ):
+            if name != st.session_state.category:
+                st.session_state.category = name
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+_cols2 = st.columns(3, gap="small")
+for i, (icon, name, desc) in enumerate(_row2):
+    with _cols2[i]:
+        _is_active = (_current_cat == name)
+        _wrapper_class = "pos-btn-active" if _is_active else ""
+        st.markdown(f'<div class="{_wrapper_class}">', unsafe_allow_html=True)
+        if st.button(
+            f"{icon} {name}\n{desc}",
+            key=f"pos_btn_{name}",
+            use_container_width=True,
+        ):
+            if name != st.session_state.category:
+                st.session_state.category = name
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# 自定义定位输入框（仅"其他"时出现）
+if st.session_state.category not in [p[1] for p in _POSITIONS[:-1]]:
+    _custom_val = "" if st.session_state.category == "其他" else st.session_state.category
+    custom_category = st.text_input(
+        "输入自定义定位名称",
+        value=_custom_val,
+        placeholder="例如：母婴、健身、旅游...",
+        key="custom_category_input",
+    )
+    _effective = custom_category.strip() if custom_category.strip() else "其他"
+    if _effective != st.session_state.category:
+        st.session_state.category = _effective
+        st.rerun()
+
 st.divider()
 
-# ── 公众号定位选择器（常驻顶部，随时可切换）────────────────────────────────────────
-with st.container():
-    col_pos_label, col_pos_sel = st.columns([1, 3])
-    with col_pos_label:
-        st.markdown(
-            '<div style="padding-top:8px;color:rgba(255,255,255,0.7);font-size:0.9rem;">📌 公众号定位</div>',
-            unsafe_allow_html=True,
-        )
-    with col_pos_sel:
-        # 如果当前 category 是自定义名称（不在列表里），选择器显示"其他"
-        _current_in_list = st.session_state.category in config.CATEGORY_LIST
-        _selector_index = (
-            config.CATEGORY_LIST.index(st.session_state.category)
-            if _current_in_list
-            else config.CATEGORY_LIST.index("其他")
-        )
-        selected_category = st.selectbox(
-            "公众号定位",
-            options=config.CATEGORY_LIST,
-            index=_selector_index,
-            label_visibility="collapsed",
-            key="category_selector",
-        )
-        if selected_category == "其他":
-            # 自定义定位输入框
-            _custom_val = "" if _current_in_list else st.session_state.category
-            custom_category = st.text_input(
-                "输入自定义定位名称",
-                value=_custom_val,
-                placeholder="例如：母婴、健身、旅游...",
-                label_visibility="collapsed",
-                key="custom_category_input",
-            )
-            _effective = custom_category.strip() if custom_category.strip() else "其他"
-            if _effective != st.session_state.category:
-                st.session_state.category = _effective
-                st.rerun()
-        else:
-            if selected_category != st.session_state.category:
-                st.session_state.category = selected_category
-                st.rerun()
-
-st.divider()
 
 # ── 进度指示器 ───────────────────────────────────────────────────────────────────
 
@@ -752,21 +662,50 @@ if st.session_state.step == "upload":
 
     # 按钮始终显示，未上传时灰色不可点，上传成功后蓝色可点
     if st.button("🚀 开始处理", type="primary", use_container_width=True, disabled=not file_ready):
-        # 上传进度反馈
+        # 上传进度反馈（threading 异步保存 + 精确倒计时）
+        import threading as _threading
         _file_size_mb = uploaded.size / (1024 * 1024)
-        _est_sec = max(2, int(_file_size_mb / 2)) if _file_size_mb > 1 else 1
+        # 按 2MB/s 估算，最少 1 秒
+        _est_sec = max(1, int(_file_size_mb / 2))
         _upload_bar = st.progress(0, text="📤 正在上传文件，请稍候...")
         _upload_status = st.empty()
 
-        # 模拟上传进度（实际 IO 在 save_uploaded_file 中完成）
-        # 先推进到 70%，给用户反馈，剩余 30% 在 save 完成后完成
-        for _i in range(1, 8):
-            time.sleep(max(0.15, _est_sec * 0.07))
-            _pct = _i / 10
-            _upload_bar.progress(_pct, text=f"📤 正在上传文件...（{int(_pct * 100)}%）")
+        # 在后台线程做文件保存 IO
+        _save_result = [None, None]   # [file_path, file_type]
+        _save_error  = [None]
+        _save_done   = _threading.Event()
 
-        _upload_status.caption("💾 正在保存文件到服务器...")
-        file_path, file_type = save_uploaded_file(uploaded)
+        def _do_save():
+            try:
+                _save_result[0], _save_result[1] = save_uploaded_file(uploaded)
+            except Exception as _e:
+                _save_error[0] = _e
+            finally:
+                _save_done.set()
+
+        _save_thread = _threading.Thread(target=_do_save, daemon=True)
+        _save_thread.start()
+
+        # 主线程动态更新进度条（每 0.3s 刷新一次）
+        _elapsed = 0.0
+        _tick_interval = 0.3
+        while not _save_done.wait(timeout=_tick_interval):
+            _elapsed += _tick_interval
+            _pct = min(_elapsed / max(_est_sec, 1) * 0.92, 0.92)  # 最多到 92%
+            _remain = max(0, _est_sec - int(_elapsed))
+            if _remain > 0:
+                _remain_str = f"预计还需 {_remain} 秒"
+            else:
+                _remain_str = "即将完成..."
+            _upload_bar.progress(_pct, text=f"📤 正在上传文件...（{_remain_str}）")
+
+        _save_thread.join()
+
+        if _save_error[0]:
+            st.error(f"文件保存失败：{_save_error[0]}")
+            st.stop()
+
+        file_path, file_type = _save_result[0], _save_result[1]
         _upload_bar.progress(1.0, text="✅ 上传完成！")
         _upload_status.empty()
         time.sleep(0.3)
@@ -829,17 +768,69 @@ elif st.session_state.step == "processing":
             sub_steps[0]["status"] = "done"
             detail_placeholder.caption(f"文档字数：{word_count(transcript)}")
 
-            # Step 2.2: AI 生成文章（跳过转录步骤）
+            # Step 2.2: AI 生成文章（跳过转录步骤，threading + 预估剩余时间）
             sub_steps[1]["status"] = "active"
             status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
             progress_placeholder.progress(0.5)
 
-            result = generate_article(
-                transcript,
-                category=st.session_state.category,
-                style=st.session_state.writing_style,
-            )
+            _ai_result  = [None]
+            _ai_error   = [None]
+            _ai_done    = threading.Event()
+            _category_snap = st.session_state.category
+            _style_snap    = st.session_state.writing_style
+            # 非财经定位首次调用需两阶段（预估约75s），财经约45s
+            _ai_est_sec = 75 if _category_snap != "财经" else 45
 
+            def _do_generate_doc():
+                try:
+                    _ai_result[0] = generate_article(
+                        transcript,
+                        category=_category_snap,
+                        style=_style_snap,
+                    )
+                except Exception as _e:
+                    _ai_error[0] = _e
+                finally:
+                    _ai_done.set()
+
+            _ai_thread = threading.Thread(target=_do_generate_doc, daemon=True)
+            _ai_thread.start()
+
+            _ai_bar = st.empty()
+            _ai_tip = st.empty()
+            _ai_elapsed = 0.0
+            _ai_tick = 0.8
+            _ai_tips = [
+                f"🤖 AI 正在为「{_category_snap}」定位生成文章...",
+                f"🤖 AI 正在思考，定位：{_category_snap} × 风格：{_style_snap}",
+                "🤖 文章生成需要 30-75 秒，请稍候...",
+                "🤖 快好了，AI 正在润色收尾...",
+            ]
+            _ai_tip_idx = 0
+            while not _ai_done.wait(timeout=_ai_tick):
+                _ai_elapsed += _ai_tick
+                _ai_pct = min(0.5 + (_ai_elapsed / _ai_est_sec) * 0.45, 0.95)
+                progress_placeholder.progress(_ai_pct)
+                _remain_ai = max(0, _ai_est_sec - int(_ai_elapsed))
+                _tip_text = _ai_tips[min(_ai_tip_idx // 5, len(_ai_tips) - 1)]
+                if _remain_ai > 0:
+                    _remain_ai_str = f"预计还需 {_remain_ai} 秒"
+                else:
+                    _remain_ai_str = "即将完成..."
+                _ai_bar.progress(
+                    min(_ai_elapsed / _ai_est_sec, 0.98),
+                    text=f"{_tip_text}（{_remain_ai_str}）"
+                )
+                _ai_tip_idx += 1
+
+            _ai_thread.join()
+            _ai_bar.empty()
+            _ai_tip.empty()
+
+            if _ai_error[0]:
+                raise _ai_error[0]
+
+            result = _ai_result[0]
             sub_steps[1]["status"] = "done"
             st.session_state.article_title = result["title"]
             st.session_state.article_content = result["content"]
@@ -938,17 +929,66 @@ elif st.session_state.step == "processing":
             sub_steps[1]["status"] = "done"
             st.session_state.transcript = transcript
 
-        # Step 2.3: AI 生成文章
+        # Step 2.3: AI 生成文章（threading + 预估剩余时间）
         sub_steps[2]["status"] = "active"
         status_placeholder.markdown(render_sub_steps(sub_steps), unsafe_allow_html=True)
         progress_placeholder.progress(0.6)
 
-        result = generate_article(
-            transcript,
-            category=st.session_state.category,
-            style=st.session_state.writing_style,
-        )
+        _ai_result2  = [None]
+        _ai_error2   = [None]
+        _ai_done2    = threading.Event()
+        _category_snap2 = st.session_state.category
+        _style_snap2    = st.session_state.writing_style
+        _ai_est_sec2 = 75 if _category_snap2 != "财经" else 45
 
+        def _do_generate_av():
+            try:
+                _ai_result2[0] = generate_article(
+                    transcript,
+                    category=_category_snap2,
+                    style=_style_snap2,
+                )
+            except Exception as _e:
+                _ai_error2[0] = _e
+            finally:
+                _ai_done2.set()
+
+        _ai_thread2 = threading.Thread(target=_do_generate_av, daemon=True)
+        _ai_thread2.start()
+
+        _ai_bar2 = st.empty()
+        _ai_elapsed2 = 0.0
+        _ai_tick2 = 0.8
+        _ai_tips2 = [
+            f"🤖 AI 正在为「{_category_snap2}」定位生成文章...",
+            f"🤖 AI 正在思考，定位：{_category_snap2} × 风格：{_style_snap2}",
+            "🤖 文章生成需要 30-75 秒，请稍候...",
+            "🤖 快好了，AI 正在润色收尾...",
+        ]
+        _ai_tip2_idx = 0
+        while not _ai_done2.wait(timeout=_ai_tick2):
+            _ai_elapsed2 += _ai_tick2
+            _ai_pct2 = min(0.6 + (_ai_elapsed2 / _ai_est_sec2) * 0.35, 0.95)
+            progress_placeholder.progress(_ai_pct2)
+            _remain_ai2 = max(0, _ai_est_sec2 - int(_ai_elapsed2))
+            _tip_text2 = _ai_tips2[min(_ai_tip2_idx // 5, len(_ai_tips2) - 1)]
+            if _remain_ai2 > 0:
+                _remain_ai2_str = f"预计还需 {_remain_ai2} 秒"
+            else:
+                _remain_ai2_str = "即将完成..."
+            _ai_bar2.progress(
+                min(_ai_elapsed2 / _ai_est_sec2, 0.98),
+                text=f"{_tip_text2}（{_remain_ai2_str}）"
+            )
+            _ai_tip2_idx += 1
+
+        _ai_thread2.join()
+        _ai_bar2.empty()
+
+        if _ai_error2[0]:
+            raise _ai_error2[0]
+
+        result = _ai_result2[0]
         sub_steps[2]["status"] = "done"
         st.session_state.article_title = result["title"]
         st.session_state.article_content = result["content"]
@@ -1042,7 +1082,10 @@ elif st.session_state.step == "preview":
             reset_state()
             st.rerun()
     with col_next:
-        if st.button("确认发布 →", type="primary", use_container_width=True):
+        wx_secret_missing = not config.WX_APP_SECRET
+        if wx_secret_missing:
+            st.caption("微信发布功能暂未开放")
+        if st.button("确认发布 →", type="primary", use_container_width=True, disabled=wx_secret_missing):
             if not title.strip():
                 st.warning("请输入文章标题")
             elif wc < config.ARTICLE_MIN_WORDS:
@@ -1067,3 +1110,61 @@ elif st.session_state.step == "preview":
                 mime="text/plain",
                 use_container_width=True,
             )
+
+
+# ══════════════════════════════════════════════════════════════════════════════════
+# 步骤 4：发布确认页
+# ══════════════════════════════════════════════════════════════════════════════════
+
+elif st.session_state.step == "publish":
+
+    st.subheader("发布确认")
+
+    # 发布功能状态提示
+    wx_secret_missing = not config.WX_APP_SECRET
+
+    if wx_secret_missing:
+        st.markdown(
+            '''<div class="warn-box">
+            ⚠️ 微信发布功能暂未开放<br>
+            <span style="font-size:0.85rem;opacity:0.8;">
+            管理员尚未配置 WX_APP_SECRET，文章无法直接发布到公众号。<br>
+            你可以返回上一步下载 .txt 文件，手动发布。
+            </span>
+            </div>''',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            '''<div class="success-box">
+            ✓ 微信发布功能已就绪，可发布到公众号。
+            </div>''',
+            unsafe_allow_html=True,
+        )
+
+    # 文章信息摘要
+    st.markdown('''<div class="editor-card">''', unsafe_allow_html=True)
+    st.markdown(f"**标题：** {st.session_state.article_title or '（未设置）'}")
+    wc_publish = word_count(st.session_state.article_content or "")
+    st.markdown(f"**字数：** {wc_publish} 字")
+    st.markdown('''</div>''', unsafe_allow_html=True)
+
+    st.divider()
+
+    col_back, col_dl = st.columns([1, 1])
+    with col_back:
+        if st.button("← 返回编辑", use_container_width=True):
+            st.session_state.step = "preview"
+            st.rerun()
+    with col_dl:
+        # 提供下载兜底
+        dl_title = st.session_state.article_title or "article"
+        dl_content = st.session_state.article_content or ""
+        txt_content = f"{dl_title}\n\n{dl_content}\n\n---\n以上内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。"
+        st.download_button(
+            "📥 下载 .txt",
+            txt_content.encode("utf-8"),
+            file_name=f"{dl_title[:30]}.txt",
+            mime="text/plain",
+            use_container_width=True,
+        )
