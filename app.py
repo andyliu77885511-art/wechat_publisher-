@@ -101,8 +101,8 @@ st.markdown("""
 /* ===== 全局背景 ===== */
 .stApp {
     background:
-        radial-gradient(ellipse at 60% 20%, rgba(180,0,0,0.35) 0%, transparent 55%),
-        radial-gradient(ellipse at 10% 80%, rgba(120,0,0,0.25) 0%, transparent 45%),
+        radial-gradient(ellipse at 75% 10%, rgba(0,229,204,0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 10% 80%, rgba(180,0,0,0.30) 0%, transparent 45%),
         #12122a !important;
     min-height: 100vh;
     font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
@@ -115,7 +115,7 @@ st.markdown("""
     top: 0; left: 0; right: 0; bottom: 0;
     background:
         radial-gradient(ellipse at 20% 50%, rgba(255,77,77,0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(0,229,204,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0,229,204,0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 50% 80%, rgba(255,77,77,0.02) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
@@ -191,7 +191,7 @@ hr {
     font-weight: 600;
     animation: coralPulse 1.8s infinite, slideInUp 0.3s ease both;
     /* 渐变文字 */
-    background-image: linear-gradient(135deg, #ff2d2d 0%, #ff7070 50%, #ffaaaa 100%), rgba(255,77,77,0.12);
+    background-image: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%), rgba(255,77,77,0.12);
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -418,7 +418,7 @@ div[data-testid="stFileUploader"] section:hover {
 h1, h2, h3 {
     font-family: 'Clash Display', 'Satoshi', sans-serif !important;
     font-weight: 700 !important;
-    background: linear-gradient(135deg, #ff2d2d 0%, #ff7070 50%, #ffaaaa 100%) !important;
+    background: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
