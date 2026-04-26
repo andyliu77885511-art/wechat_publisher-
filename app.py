@@ -58,15 +58,15 @@ st.markdown("""
     --coral-bright: #FF4D4D;
     --coral-dim: rgba(255, 77, 77, 0.7);
     --coral-glow: rgba(255, 77, 77, 0.25);
-    --bg-primary: #050810;
-    --bg-secondary: #0a0e1a;
-    --bg-card: rgba(255, 255, 255, 0.04);
-    --bg-card-hover: rgba(255, 255, 255, 0.07);
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-card: rgba(255, 255, 255, 0.1);
+    --bg-primary: #12122a;
+    --bg-secondary: #1a1a2e;
+    --bg-card: rgba(255, 255, 255, 0.08);
+    --bg-card-hover: rgba(255, 255, 255, 0.12);
+    --border-subtle: rgba(255, 255, 255, 0.15);
+    --border-card: rgba(255, 255, 255, 0.18);
     --text-primary: #f0f0f0;
-    --text-secondary: rgba(255, 255, 255, 0.55);
-    --text-muted: rgba(255, 255, 255, 0.32);
+    --text-secondary: rgba(255, 255, 255, 0.72);
+    --text-muted: rgba(255, 255, 255, 0.50);
     --accent: #FF4D4D;
     --accent-cyan: #00e5cc;
     --success: #34d399;
@@ -101,9 +101,9 @@ st.markdown("""
 /* ===== 全局背景 ===== */
 .stApp {
     background:
-        radial-gradient(ellipse at 60% 20%, rgba(180,0,0,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 10% 80%, rgba(120,0,0,0.10) 0%, transparent 45%),
-        #080808 !important;
+        radial-gradient(ellipse at 60% 20%, rgba(180,0,0,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse at 10% 80%, rgba(120,0,0,0.25) 0%, transparent 45%),
+        #12122a !important;
     min-height: 100vh;
     font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
@@ -297,7 +297,7 @@ hr {
 /* ===== 输入框 ===== */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background: rgba(255,255,255,0.04) !important;
+    background: rgba(255,255,255,0.07) !important;
     border: 1px solid var(--border-card) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
