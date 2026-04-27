@@ -44,34 +44,46 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式（全面美化版）───────────────────────────────────────────────────────
+# ── 自定义样式（OpenClaw 设计系统 v2）───────────────────────────────────────────────
 st.markdown("""
 <style>
-/* ===== OpenClaw 风格设计系统 ===== */
-/* 参考: openclaw.ai — 深空黑 + Coral红 + 玻璃卡片 + 极简极客调性 */
-
 /* ===== 字体引入 ===== */
 @import url('https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&f[]=satoshi@400,500,700&display=swap');
 
-/* ===== CSS 变量 ===== */
+/* ===== CSS 变量（严格 OpenClaw token）===== */
 :root {
-    --coral-bright: #FF4D4D;
-    --coral-dim: rgba(255, 77, 77, 0.7);
-    --coral-glow: rgba(255, 77, 77, 0.25);
-    --bg-primary: #12122a;
-    --bg-secondary: #1a1a2e;
-    --bg-card: rgba(255, 255, 255, 0.08);
-    --bg-card-hover: rgba(255, 255, 255, 0.12);
-    --border-subtle: rgba(255, 255, 255, 0.15);
-    --border-card: rgba(255, 255, 255, 0.18);
-    --text-primary: #f0f0f0;
-    --text-secondary: rgba(255, 255, 255, 0.72);
-    --text-muted: rgba(255, 255, 255, 0.50);
-    --accent: #FF4D4D;
-    --accent-cyan: #00e5cc;
+    /* 背景 - 纯深空黑，禁止任何蓝色渗入 */
+    --bg-deep:    #050810;
+    --bg-surface: #0a0f1a;
+    --bg-elevated:#111827;
+
+    /* 主色 */
+    --coral-bright: #ff4d4d;
+    --coral-dark:   #991b1b;
+    --coral-glow:   rgba(255, 77, 77, 0.25);
+    --coral-dim:    rgba(255, 77, 77, 0.7);
+    --cyan-bright:  #00e5cc;
+
+    /* 卡片表面 */
+    --bg-card:       rgba(255, 255, 255, 0.04);
+    --bg-card-hover: rgba(255, 255, 255, 0.07);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-card:   rgba(255, 255, 255, 0.08);
+    --border-accent: rgba(255, 77, 77, 0.30);
+
+    /* 文字 */
+    --text-primary:   #f0f4ff;
+    --text-secondary: #8892b0;
+    --text-muted:     #5a6480;
+
+    /* 状态色 */
     --success: #34d399;
     --warning: #fbbf24;
-    --error: #f87171;
+    --error:   #f87171;
+
+    /* 字体 */
+    --font-display: 'Clash Display', system-ui, sans-serif;
+    --font-body:    'Satoshi', system-ui, sans-serif;
 }
 
 /* ===== 动画 Keyframes ===== */
@@ -97,26 +109,28 @@ st.markdown("""
     50%  { border-color: rgba(255,77,77,0.8); box-shadow: 0 0 20px rgba(255,77,77,0.2); }
     100% { border-color: rgba(255,77,77,0.4); }
 }
-
-/* ===== 全局背景 ===== */
-.stApp {
-    background:
-        radial-gradient(ellipse at 75% 10%, rgba(0,229,204,0.20) 0%, transparent 45%),
-        radial-gradient(ellipse at 10% 80%, rgba(180,0,0,0.30) 0%, transparent 45%),
-        #12122a !important;
-    min-height: 100vh;
-    font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* 背景星空纹理 */
+/* ===== 全局背景 - 纯黑，无蓝色渗入 ===== */
+.stApp {
+    background: #050810 !important;
+    min-height: 100vh;
+    font-family: var(--font-body) !important;
+}
+
+/* Nebula 装饰层 - 极低透明度 coral/cyan，不影响背景纯黑感 */
 .stApp::before {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background:
-        radial-gradient(ellipse at 20% 50%, rgba(255,77,77,0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(0,229,204,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(255,77,77,0.02) 0%, transparent 50%);
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(255,77,77,0.06), transparent 50%),
+        radial-gradient(ellipse 60% 60% at 80% 30%, rgba(0,229,204,0.04), transparent 50%),
+        radial-gradient(ellipse 90% 70% at 50% 90%, rgba(255,77,77,0.03), transparent 50%);
     pointer-events: none;
     z-index: 0;
 }
@@ -137,26 +151,25 @@ st.markdown("""
 /* ===== Header ===== */
 .app-header {
     animation: fadeInDown 0.6s ease both;
-    font-family: 'Clash Display', 'Satoshi', sans-serif !important;
+    font-family: var(--font-display) !important;
     font-size: 2.4rem;
     font-weight: 700;
     letter-spacing: -1.2px;
-    background: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%);
+    background: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite, fadeInDown 0.6s ease both;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
     margin-bottom: 0.15rem;
     line-height: 1.1;
 }
-.app-header-accent {
-    color: var(--coral-bright);
-}
 .app-subtitle {
     animation: fadeInDown 0.8s ease both;
     color: var(--text-muted) !important;
     font-size: 0.82rem;
     margin-top: 0;
-    font-family: 'Satoshi', sans-serif;
+    font-family: var(--font-body);
     letter-spacing: 0.2px;
 }
 
@@ -168,10 +181,10 @@ hr {
     margin: 1.5rem 0 !important;
 }
 
-/* ===== 步骤指示器（Claw 风格胶囊）===== */
+/* ===== 步骤胶囊 ===== */
 .step-capsule-done {
     display: inline-block;
-    background: rgba(52, 211, 153, 0.12);
+    background: rgba(52, 211, 153, 0.10);
     color: var(--success) !important;
     border: 1px solid rgba(52, 211, 153, 0.3);
     border-radius: 6px;
@@ -183,15 +196,14 @@ hr {
 }
 .step-capsule-active {
     display: inline-block;
-    background: rgba(255, 77, 77, 0.12);
+    background: rgba(255, 77, 77, 0.10);
     border: 1px solid rgba(255, 77, 77, 0.4);
     border-radius: 6px;
     padding: 3px 12px;
     font-size: 0.78rem;
     font-weight: 600;
     animation: coralPulse 1.8s infinite, slideInUp 0.3s ease both;
-    /* 渐变文字 */
-    background-image: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%), rgba(255,77,77,0.12);
+    background-image: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%), rgba(255,77,77,0.10);
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -207,21 +219,22 @@ hr {
     font-weight: 500;
 }
 
-/* ===== 上传区卡片（OpenClaw 风格）===== */
+/* ===== 上传区卡片（毛玻璃）===== */
 .upload-box {
-    border: 1.5px dashed rgba(255, 77, 77, 0.3);
+    border: 1.5px dashed rgba(255, 77, 77, 0.30);
     border-radius: 14px;
     padding: 3rem 2rem;
     text-align: center;
-    background: rgba(255, 77, 77, 0.03);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
     margin: 1rem 0;
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     animation: slideInUp 0.45s ease both;
     animation-delay: 0.08s;
 }
 .upload-box:hover {
     border-color: rgba(255, 77, 77, 0.6);
-    background: rgba(255, 77, 77, 0.06);
+    background: rgba(255, 255, 255, 0.06);
     animation: borderGlow 2s ease infinite;
 }
 .upload-icon {
@@ -236,10 +249,7 @@ hr {
     font-weight: 600;
     color: var(--text-primary) !important;
     margin-bottom: 0.3rem;
-    font-family: 'Clash Display', 'Satoshi', sans-serif;
-}
-.upload-title-accent {
-    color: var(--coral-bright);
+    font-family: var(--font-display);
 }
 .upload-hint {
     color: var(--text-muted);
@@ -248,11 +258,11 @@ hr {
 }
 
 /* ===== 子步骤状态 ===== */
-.step-done  { color: var(--success) !important; font-weight: 600; }
+.step-done   { color: var(--success) !important; font-weight: 600; }
 .step-active { color: var(--coral-bright) !important; font-weight: 600; }
-.step-wait  { color: var(--text-muted) !important; }
+.step-wait   { color: var(--text-muted) !important; }
 
-/* ===== 提示框（玻璃卡片风格）===== */
+/* ===== 提示框（毛玻璃卡片）===== */
 .warn-box {
     background: rgba(251, 191, 36, 0.06);
     border: 1px solid rgba(251, 191, 36, 0.25);
@@ -261,6 +271,7 @@ hr {
     margin: 1rem 0;
     color: var(--warning) !important;
     font-size: 0.88rem;
+    backdrop-filter: blur(12px);
     animation: slideInUp 0.35s ease both;
 }
 .success-box {
@@ -271,6 +282,7 @@ hr {
     margin: 1rem 0;
     color: var(--success) !important;
     font-size: 0.88rem;
+    backdrop-filter: blur(12px);
     animation: slideInUp 0.35s ease both;
 }
 .error-box {
@@ -281,6 +293,7 @@ hr {
     margin: 1rem 0;
     color: var(--error) !important;
     font-size: 0.88rem;
+    backdrop-filter: blur(12px);
     animation: slideInUp 0.35s ease both;
 }
 
@@ -289,7 +302,11 @@ hr {
     border-left: 3px solid var(--coral-bright);
     border-radius: 0 10px 10px 0;
     padding: 1.2rem 1.4rem;
-    background: var(--bg-card);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
     margin-bottom: 1rem;
     animation: slideInUp 0.45s ease both;
 }
@@ -297,22 +314,22 @@ hr {
 /* ===== 输入框 ===== */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background: rgba(255,255,255,0.07) !important;
+    background: rgba(10, 15, 26, 0.80) !important;
     border: 1px solid var(--border-card) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
-    font-family: 'Satoshi', sans-serif !important;
+    font-family: var(--font-body) !important;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
     border-color: var(--coral-bright) !important;
-    box-shadow: 0 0 0 2px var(--coral-glow) !important;
+    box-shadow: 0 0 0 3px rgba(255,77,77,0.22) !important;
     outline: none !important;
-    background: rgba(255,255,255,0.055) !important;
+    background: rgba(10, 15, 26, 0.90) !important;
 }
 
-/* ===== 按钮（Coral 主色）===== */
+/* ===== 主按钮（Coral 渐变）===== */
 .stButton > button {
     background: linear-gradient(135deg, #cc0000 0%, #ff4d4d 100%) !important;
     color: #fff !important;
@@ -321,14 +338,14 @@ hr {
     font-weight: 700 !important;
     font-size: 0.9rem !important;
     padding: 0.55rem 1.4rem !important;
-    font-family: 'Satoshi', sans-serif !important;
+    font-family: var(--font-body) !important;
     letter-spacing: 0.1px;
-    box-shadow: 0 2px 12px rgba(255,77,77,0.3) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+    box-shadow: 0 2px 12px rgba(255,77,77,0.30) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    background: #ff3333 !important;
+    background: linear-gradient(135deg, #cc0000 0%, #ff4d4d 100%) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 20px rgba(255,77,77,0.45) !important;
 }
@@ -338,13 +355,13 @@ hr {
 }
 /* 次要按钮 */
 .stButton > button[kind="secondary"] {
-    background: var(--bg-card) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid var(--border-card) !important;
     box-shadow: none !important;
     color: var(--text-secondary) !important;
 }
 .stButton > button[kind="secondary"]:hover {
-    background: var(--bg-card-hover) !important;
+    background: rgba(255, 255, 255, 0.07) !important;
     border-color: rgba(255,77,77,0.3) !important;
     box-shadow: none !important;
     transform: translateY(-1px) !important;
@@ -352,17 +369,17 @@ hr {
 
 /* ===== 下载按钮 ===== */
 .stDownloadButton > button {
-    background: rgba(52, 211, 153, 0.1) !important;
+    background: rgba(52, 211, 153, 0.08) !important;
     color: var(--success) !important;
     border: 1px solid rgba(52, 211, 153, 0.35) !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
-    font-family: 'Satoshi', sans-serif !important;
+    font-family: var(--font-body) !important;
     box-shadow: none !important;
     transition: all 0.15s ease !important;
 }
 .stDownloadButton > button:hover {
-    background: rgba(52, 211, 153, 0.18) !important;
+    background: rgba(52, 211, 153, 0.15) !important;
     border-color: rgba(52, 211, 153, 0.6) !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 4px 12px rgba(52,211,153,0.2) !important;
@@ -388,51 +405,53 @@ hr {
     border-radius: 999px !important;
 }
 
-/* ===== Expander（折叠区）===== */
+/* ===== Expander ===== */
 .streamlit-expanderHeader {
-    background: var(--bg-card) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid var(--border-subtle) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-weight: 600 !important;
+    backdrop-filter: blur(12px);
     transition: background 0.2s;
 }
 .streamlit-expanderHeader:hover {
-    background: var(--bg-card-hover) !important;
+    background: rgba(255, 255, 255, 0.07) !important;
 }
 
 /* ===== file uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
 div[data-testid="stFileUploader"] section {
-    background: rgba(255,77,77,0.04) !important;
+    background: rgba(255,77,77,0.03) !important;
     border: 1.5px dashed rgba(255,77,77,0.25) !important;
     border-radius: 10px !important;
+    backdrop-filter: blur(12px);
     transition: border-color 0.2s, background 0.2s;
 }
 div[data-testid="stFileUploader"] section:hover {
     border-color: rgba(255,77,77,0.5) !important;
-    background: rgba(255,77,77,0.07) !important;
+    background: rgba(255,77,77,0.06) !important;
 }
 
-/* ===== 标题（h2/h3）===== */
+/* ===== 标题（h1/h2/h3）渐变 ===== */
 h1, h2, h3 {
-    font-family: 'Clash Display', 'Satoshi', sans-serif !important;
+    font-family: var(--font-display) !important;
     font-weight: 700 !important;
-    background: linear-gradient(135deg, #FF4D4D 0%, #C8B8B8 50%, #00E5CC 100%) !important;
+    background: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
     letter-spacing: -0.3px;
 }
 
-/* claw-accent 前缀标记 */
+/* ===== claw-accent ===== */
 .claw-accent {
     color: var(--coral-bright);
     margin-right: 0.35rem;
     font-weight: 600;
 }
 
-/* ===== Section 标题行样式 ===== */
+/* ===== Section 标题行 ===== */
 .section-title-row {
     display: flex;
     align-items: center;
@@ -440,16 +459,17 @@ h1, h2, h3 {
     gap: 0.4rem;
 }
 .section-title-main {
-    font-family: 'Clash Display', 'Satoshi', sans-serif;
+    font-family: var(--font-display);
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.2px;
 }
 
-/* ===== 公众号定位选择器容器 ===== */
+/* ===== 公众号定位选择器 ===== */
 .selector-container {
-    background: var(--bg-card);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--border-subtle);
     border-radius: 10px;
     padding: 0.75rem 1rem;
@@ -473,7 +493,7 @@ h1, h2, h3 {
 
 /* ===== Selectbox ===== */
 div[data-testid="stSelectbox"] > div > div {
-    background: rgba(255,255,255,0.05) !important;
+    background: rgba(10, 15, 26, 0.80) !important;
     border: 1px solid var(--border-card) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
@@ -494,8 +514,9 @@ div[data-testid="stSelectbox"] > div > div {
 /* ===== Info/Warning/Success 原生提示 ===== */
 div[data-testid="stAlert"] {
     border-radius: 10px !important;
-    background: var(--bg-card) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid var(--border-subtle) !important;
+    backdrop-filter: blur(12px);
 }
 
 /* ===== Divider ===== */
@@ -503,13 +524,13 @@ div[data-testid="stAlert"] {
     border-color: var(--border-subtle) !important;
 }
 
-/* ===== Sidebar（如果有）===== */
+/* ===== Sidebar ===== */
 [data-testid="stSidebar"] {
-    background: var(--bg-secondary) !important;
+    background: #0a0f1a !important;
     border-right: 1px solid var(--border-subtle) !important;
 }
 
-/* ===== 滚动条美化 ===== */
+/* ===== 滚动条 ===== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -518,12 +539,13 @@ div[data-testid="stAlert"] {
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,77,77,0.45); }
 
-/* ===== 选中文字颜色 ===== */
+/* ===== 选中文字 ===== */
 ::selection {
     background: rgba(255,77,77,0.25);
     color: #fff;
 }
 </style>
+
 """, unsafe_allow_html=True)
 
 # ── 初始化 ───────────────────────────────────────────────────────────────────────
