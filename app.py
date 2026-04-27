@@ -444,6 +444,12 @@ div[data-testid="stFileUploader"] section > div {
     flex: 1 !important;
     text-align: left !important;
 }
+/* 隐藏"将文件拖放到此处"文字，只保留浏览文件按钮 */
+div[data-testid="stFileUploader"] section > div > span,
+div[data-testid="stFileUploader"] section > div > small,
+div[data-testid="stFileUploader"] section > div > p:first-child {
+    display: none !important;
+}
 
 /* ===== 标题（h1/h2/h3）渐变 ===== */
 h1, h2, h3 {
