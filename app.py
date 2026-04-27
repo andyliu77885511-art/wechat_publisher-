@@ -732,7 +732,7 @@ if st.session_state.step == "upload":
     st.markdown(
         '<div class="upload-box">'
         '<span class="upload-icon">📂</span>'
-        '<div class="upload-title">拖拽文件到此处，或点击下方按钮选择文件</div>'
+        '<div class="upload-title">点击下方按钮选择文件</div>'
         '<div class="upload-hint">支持格式：音视频（mp3 / mp4 / m4a / wav / avi / mov / mkv / flv / wmv）| 文档（pdf / txt / docx / md）</div>'
         '</div>',
         unsafe_allow_html=True,
