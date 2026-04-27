@@ -427,10 +427,22 @@ div[data-testid="stFileUploader"] section {
     border-radius: 10px !important;
     backdrop-filter: blur(12px);
     transition: border-color 0.2s, background 0.2s;
+    flex-direction: row-reverse !important;
+    justify-content: flex-end !important;
+    gap: 1.2rem !important;
+    padding: 1.2rem 1.5rem !important;
 }
 div[data-testid="stFileUploader"] section:hover {
     border-color: rgba(255,77,77,0.5) !important;
     background: rgba(255,77,77,0.06) !important;
+}
+div[data-testid="stFileUploader"] section > button {
+    flex-shrink: 0 !important;
+    order: -1 !important;
+}
+div[data-testid="stFileUploader"] section > div {
+    flex: 1 !important;
+    text-align: left !important;
 }
 
 /* ===== 标题（h1/h2/h3）渐变 ===== */
