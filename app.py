@@ -437,22 +437,33 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
     background: var(--primary-light) !important;
 }
 
-/* 按钮放最左：order -1，禁止收缩，强制单行文字不折叠 */
+/* 按钮放最左：order -1，禁止收缩，隐藏原始文字用::after注入 */
 div[data-testid="stFileUploader"] section > button,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     order: -1 !important;
     flex-shrink: 0 !important;
-    min-width: 120px !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
     background: var(--primary) !important;
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    font-size: 0 !important;
     border: none !important;
     border-radius: 6px !important;
     font-weight: 600 !important;
     padding: 0.5rem 1.4rem !important;
     box-shadow: var(--shadow-1) !important;
+    position: relative !important;
+}
+div[data-testid="stFileUploader"] section > button::after,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button::after,
+div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]::after {
+    content: "Upload" !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
 }
 div[data-testid="stFileUploader"] section > button:hover,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]:hover {
