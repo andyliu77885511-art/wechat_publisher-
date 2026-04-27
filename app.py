@@ -423,7 +423,7 @@ div[data-testid="stFileUploader"] div[role="presentation"] {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 1.2rem !important;
+    gap: 1.5rem !important;
     padding: 1.2rem 1.5rem !important;
     background: var(--bg-surface) !important;
     border: 1.5px dashed var(--border) !important;
@@ -437,19 +437,21 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
     background: var(--primary-light) !important;
 }
 
-/* 按钮放最左：order -1，禁止收缩 */
+/* 按钮放最左：order -1，禁止收缩，强制单行文字不折叠 */
 div[data-testid="stFileUploader"] section > button,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     order: -1 !important;
     flex-shrink: 0 !important;
+    min-width: 120px !important;
+    white-space: nowrap !important;
     background: var(--primary) !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: none !important;
     border-radius: 6px !important;
     font-weight: 600 !important;
-    padding: 0.45rem 1.1rem !important;
+    padding: 0.5rem 1.4rem !important;
     box-shadow: var(--shadow-1) !important;
 }
 div[data-testid="stFileUploader"] section > button:hover,
