@@ -417,8 +417,7 @@ div[data-testid="stFileUploader"] > div { border: none !important; }
 
 /* section 强制 flex 横排，按钮在左 */
 div[data-testid="stFileUploader"] section,
-div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
-div[data-testid="stFileUploader"] div[role="presentation"] {
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -435,6 +434,11 @@ div[data-testid="stFileUploader"] section:hover,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
     border-color: var(--primary) !important;
     background: var(--primary-light) !important;
+}
+
+/* 隐藏 presentation 层多余按钮，只保留 dropzone 内的那个 */
+div[data-testid="stFileUploader"] div[role="presentation"] > button {
+    display: none !important;
 }
 
 /* 按钮放最左：order -1 */
