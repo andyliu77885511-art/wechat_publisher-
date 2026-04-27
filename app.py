@@ -44,388 +44,380 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式（OpenClaw 设计系统 v2）───────────────────────────────────────────────
+# ── 自定义样式（Material Design / Google 风格）──────────────────────────────────────
 st.markdown("""
 <style>
-/* ===== 字体引入 ===== */
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&f[]=satoshi@400,500,700&display=swap');
+/* ===== 字体引入 (Google Fonts) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
-/* ===== CSS 变量（严格 OpenClaw token）===== */
+/* ===== CSS 变量 (Material Design tokens) ===== */
 :root {
-    /* 背景 - 纯深空黑，禁止任何蓝色渗入 */
-    --bg-deep:    #050810;
-    --bg-surface: #0a0f1a;
-    --bg-elevated:#111827;
+    /* 背景 */
+    --bg-app:     #f8f9fa;
+    --bg-surface: #ffffff;
+    --bg-elevated:#ffffff;
+    --bg-muted:   #f1f3f4;
 
-    /* 主色 */
-    --coral-bright: #ff4d4d;
-    --coral-dark:   #991b1b;
-    --coral-glow:   rgba(255, 77, 77, 0.25);
-    --coral-dim:    rgba(255, 77, 77, 0.7);
-    --cyan-bright:  #00e5cc;
-
-    /* 卡片表面 */
-    --bg-card:       rgba(255, 255, 255, 0.04);
-    --bg-card-hover: rgba(255, 255, 255, 0.07);
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-card:   rgba(255, 255, 255, 0.08);
-    --border-accent: rgba(255, 77, 77, 0.30);
-
-    /* 文字 */
-    --text-primary:   #f0f4ff;
-    --text-secondary: #8892b0;
-    --text-muted:     #5a6480;
+    /* 主色 Google Blue */
+    --primary:       #1a73e8;
+    --primary-dark:  #1557b0;
+    --primary-light: #e8f0fe;
+    --primary-glow:  rgba(26, 115, 232, 0.18);
 
     /* 状态色 */
-    --success: #34d399;
-    --warning: #fbbf24;
-    --error:   #f87171;
+    --success:      #34a853;
+    --success-bg:   #e6f4ea;
+    --success-bdr:  #a8d5b5;
+    --warning:      #f9ab00;
+    --warning-bg:   #fef7e0;
+    --warning-bdr:  #f9d87e;
+    --error:        #d93025;
+    --error-bg:     #fce8e6;
+    --error-bdr:    #f5b8b4;
+
+    /* 边框 */
+    --border:       #dadce0;
+    --border-focus: #1a73e8;
+
+    /* 文字 */
+    --text-primary:   #202124;
+    --text-secondary: #5f6368;
+    --text-muted:     #9aa0a6;
+    --text-on-blue:   #ffffff;
+
+    /* 阴影 */
+    --shadow-1: 0 1px 2px rgba(60,64,67,0.10), 0 1px 3px rgba(60,64,67,0.10);
+    --shadow-2: 0 1px 3px rgba(60,64,67,0.12), 0 2px 6px rgba(60,64,67,0.14);
+    --shadow-3: 0 4px 8px rgba(60,64,67,0.12), 0 2px 4px rgba(60,64,67,0.10);
 
     /* 字体 */
-    --font-display: 'Clash Display', system-ui, sans-serif;
-    --font-body:    'Satoshi', system-ui, sans-serif;
+    --font-body:    'Inter', 'Roboto', system-ui, sans-serif;
 }
 
-/* ===== 动画 Keyframes ===== */
+/* ===== 动画 ===== */
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
+    from { opacity: 0; transform: translateY(-12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes coralPulse {
-    0%   { box-shadow: 0 0 0 0 var(--coral-glow); }
-    70%  { box-shadow: 0 0 0 10px rgba(255,77,77,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,77,77,0); }
-}
-@keyframes clawFloat {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-4px); }
-}
-@keyframes borderGlow {
-    0%   { border-color: rgba(255,77,77,0.4); }
-    50%  { border-color: rgba(255,77,77,0.8); box-shadow: 0 0 20px rgba(255,77,77,0.2); }
-    100% { border-color: rgba(255,77,77,0.4); }
-}
-@keyframes gradientShift {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes ripple {
+    0%   { transform: scale(0.95); box-shadow: 0 0 0 0 var(--primary-glow); }
+    70%  { transform: scale(1);    box-shadow: 0 0 0 8px rgba(26,115,232,0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(26,115,232,0); }
 }
 
-/* ===== 全局背景 - 纯黑，无蓝色渗入 ===== */
+/* ===== 全局背景 ===== */
 .stApp {
-    background: #050810 !important;
+    background: var(--bg-app) !important;
     min-height: 100vh;
     font-family: var(--font-body) !important;
 }
-
-/* Nebula 装饰层 - 极低透明度 coral/cyan，不影响背景纯黑感 */
-.stApp::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background:
-        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(255,77,77,0.06), transparent 50%),
-        radial-gradient(ellipse 60% 60% at 80% 30%, rgba(0,229,204,0.04), transparent 50%),
-        radial-gradient(ellipse 90% 70% at 50% 90%, rgba(255,77,77,0.03), transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+.stApp * {
+    color: var(--text-primary);
+    font-family: var(--font-body) !important;
 }
 
 .main .block-container {
     max-width: 780px;
-    padding-top: 2.5rem;
+    padding-top: 2rem;
     padding-bottom: 4rem;
-    position: relative;
-    z-index: 1;
 }
 
-/* ===== 全局文字颜色 ===== */
-.stApp, .stApp * {
-    color: var(--text-primary);
+/* ===== 全局文字覆盖 (确保白色背景上不出现白字) ===== */
+p, span, label, div, li, td, th, caption {
+    color: var(--text-primary) !important;
 }
 
 /* ===== Header ===== */
 .app-header {
-    animation: fadeInDown 0.6s ease both;
-    font-family: var(--font-display) !important;
-    font-size: 2.4rem;
+    animation: fadeInDown 0.5s ease both;
+    font-family: var(--font-body) !important;
+    font-size: 1.9rem;
     font-weight: 700;
-    letter-spacing: -1.2px;
-    background: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 6s ease infinite, fadeInDown 0.6s ease both;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    margin-bottom: 0.15rem;
-    line-height: 1.1;
+    color: var(--primary) !important;
+    -webkit-text-fill-color: var(--primary) !important;
+    margin-bottom: 0.1rem;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
 }
 .app-subtitle {
-    animation: fadeInDown 0.8s ease both;
+    animation: fadeInDown 0.7s ease both;
     color: var(--text-muted) !important;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     margin-top: 0;
     font-family: var(--font-body);
-    letter-spacing: 0.2px;
 }
 
-/* ===== 分隔线 ===== */
+/* ===== Divider ===== */
 hr {
     border: none !important;
     height: 1px !important;
-    background: var(--border-subtle) !important;
-    margin: 1.5rem 0 !important;
+    background: var(--border) !important;
+    margin: 1.2rem 0 !important;
+}
+[data-testid="stDivider"] {
+    border-color: var(--border) !important;
 }
 
 /* ===== 步骤胶囊 ===== */
 .step-capsule-done {
     display: inline-block;
-    background: rgba(52, 211, 153, 0.10);
+    background: var(--success-bg);
     color: var(--success) !important;
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    border-radius: 6px;
-    padding: 3px 12px;
+    border: 1px solid var(--success-bdr);
+    border-radius: 100px;
+    padding: 4px 14px;
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.2px;
     animation: slideInUp 0.3s ease both;
 }
 .step-capsule-active {
     display: inline-block;
-    background: rgba(255, 77, 77, 0.10);
-    border: 1px solid rgba(255, 77, 77, 0.4);
-    border-radius: 6px;
-    padding: 3px 12px;
+    background: var(--primary-light);
+    color: var(--primary) !important;
+    -webkit-text-fill-color: var(--primary) !important;
+    border: 1.5px solid var(--primary);
+    border-radius: 100px;
+    padding: 4px 14px;
     font-size: 0.78rem;
-    font-weight: 600;
-    animation: coralPulse 1.8s infinite, slideInUp 0.3s ease both;
-    background-image: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%), rgba(255,77,77,0.10);
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
+    font-weight: 700;
+    animation: ripple 1.8s infinite, slideInUp 0.3s ease both;
 }
 .step-capsule-wait {
     display: inline-block;
     background: transparent;
     color: var(--text-muted) !important;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 3px 12px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 14px;
     font-size: 0.78rem;
     font-weight: 500;
 }
 
-/* ===== 上传区卡片（毛玻璃）===== */
+/* ===== 子步骤状态 ===== */
+.step-done   { color: var(--success) !important; font-weight: 600; }
+.step-active { color: var(--primary) !important; font-weight: 600; }
+.step-wait   { color: var(--text-muted) !important; }
+
+/* ===== 上传区卡片 ===== */
 .upload-box {
-    border: 1.5px dashed rgba(255, 77, 77, 0.30);
-    border-radius: 14px;
-    padding: 3rem 2rem;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
     text-align: center;
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
+    background: var(--bg-surface);
     margin: 1rem 0;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: slideInUp 0.45s ease both;
-    animation-delay: 0.08s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    animation: slideInUp 0.4s ease both;
+    box-shadow: var(--shadow-1);
 }
 .upload-box:hover {
-    border-color: rgba(255, 77, 77, 0.6);
-    background: rgba(255, 255, 255, 0.06);
-    animation: borderGlow 2s ease infinite;
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: var(--shadow-2);
 }
 .upload-icon {
-    font-size: 2.8rem;
+    font-size: 2.4rem;
     display: block;
     margin-bottom: 0.6rem;
-    filter: drop-shadow(0 0 8px rgba(255,77,77,0.5));
-    animation: clawFloat 3s ease-in-out infinite;
 }
 .upload-title {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary) !important;
     margin-bottom: 0.3rem;
-    font-family: var(--font-display);
 }
 .upload-hint {
-    color: var(--text-muted);
+    color: var(--text-secondary) !important;
     font-size: 0.82rem;
     line-height: 1.5;
 }
 
-/* ===== 子步骤状态 ===== */
-.step-done   { color: var(--success) !important; font-weight: 600; }
-.step-active { color: var(--coral-bright) !important; font-weight: 600; }
-.step-wait   { color: var(--text-muted) !important; }
-
-/* ===== 提示框（毛玻璃卡片）===== */
+/* ===== 提示框 ===== */
 .warn-box {
-    background: rgba(251, 191, 36, 0.06);
-    border: 1px solid rgba(251, 191, 36, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
-    margin: 1rem 0;
-    color: var(--warning) !important;
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-bdr);
+    border-radius: 8px;
+    padding: 0.85rem 1.2rem;
+    margin: 0.8rem 0;
+    color: #7b5800 !important;
     font-size: 0.88rem;
-    backdrop-filter: blur(12px);
-    animation: slideInUp 0.35s ease both;
+    animation: slideInUp 0.3s ease both;
 }
 .success-box {
-    background: rgba(52, 211, 153, 0.06);
-    border: 1px solid rgba(52, 211, 153, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
-    margin: 1rem 0;
-    color: var(--success) !important;
+    background: var(--success-bg);
+    border: 1px solid var(--success-bdr);
+    border-radius: 8px;
+    padding: 0.85rem 1.2rem;
+    margin: 0.8rem 0;
+    color: #137333 !important;
     font-size: 0.88rem;
-    backdrop-filter: blur(12px);
-    animation: slideInUp 0.35s ease both;
+    animation: slideInUp 0.3s ease both;
 }
 .error-box {
-    background: rgba(248, 113, 113, 0.06);
-    border: 1px solid rgba(248, 113, 113, 0.25);
-    border-radius: 10px;
-    padding: 0.9rem 1.3rem;
-    margin: 1rem 0;
+    background: var(--error-bg);
+    border: 1px solid var(--error-bdr);
+    border-radius: 8px;
+    padding: 0.85rem 1.2rem;
+    margin: 0.8rem 0;
     color: var(--error) !important;
     font-size: 0.88rem;
-    backdrop-filter: blur(12px);
-    animation: slideInUp 0.35s ease both;
+    animation: slideInUp 0.3s ease both;
 }
 
-/* ===== 文章编辑区（左 Coral 条）===== */
+/* ===== 编辑区卡片 ===== */
 .editor-card {
-    border-left: 3px solid var(--coral-bright);
-    border-radius: 0 10px 10px 0;
+    border-left: 3px solid var(--primary);
+    border-radius: 0 8px 8px 0;
     padding: 1.2rem 1.4rem;
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border-subtle);
-    border-right: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     margin-bottom: 1rem;
-    animation: slideInUp 0.45s ease both;
+    box-shadow: var(--shadow-1);
+    animation: slideInUp 0.4s ease both;
 }
 
 /* ===== 输入框 ===== */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background: rgba(10, 15, 26, 0.80) !important;
-    border: 1px solid var(--border-card) !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-family: var(--font-body) !important;
+    font-size: 0.92rem !important;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
-    border-color: var(--coral-bright) !important;
-    box-shadow: 0 0 0 3px rgba(255,77,77,0.22) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
     outline: none !important;
-    background: rgba(10, 15, 26, 0.90) !important;
 }
 
-/* ===== 主按钮（Coral 渐变）===== */
+/* ===== 标签文字 ===== */
+.stTextInput label, .stTextArea label, .stSelectbox label,
+.stRadio label, .stFileUploader label {
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+/* ===== 主按钮（Material Blue）===== */
 .stButton > button {
-    background: linear-gradient(135deg, #cc0000 0%, #ff4d4d 100%) !important;
-    color: #fff !important;
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     border: none !important;
     border-radius: 8px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-size: 0.9rem !important;
     padding: 0.55rem 1.4rem !important;
     font-family: var(--font-body) !important;
     letter-spacing: 0.1px;
-    box-shadow: 0 2px 12px rgba(255,77,77,0.30) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    box-shadow: var(--shadow-1) !important;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease !important;
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #cc0000 0%, #ff4d4d 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(255,77,77,0.45) !important;
+    background: var(--primary-dark) !important;
+    box-shadow: var(--shadow-3) !important;
+    transform: translateY(-1px) !important;
 }
 .stButton > button:active {
     transform: translateY(0) !important;
-    box-shadow: 0 1px 6px rgba(255,77,77,0.25) !important;
+    box-shadow: var(--shadow-1) !important;
 }
-/* 次要按钮 */
-.stButton > button[kind="secondary"] {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid var(--border-card) !important;
+.stButton > button:disabled {
+    background: #dadce0 !important;
+    color: var(--text-muted) !important;
+    -webkit-text-fill-color: var(--text-muted) !important;
+    cursor: not-allowed !important;
     box-shadow: none !important;
-    color: var(--text-secondary) !important;
-}
-.stButton > button[kind="secondary"]:hover {
-    background: rgba(255, 255, 255, 0.07) !important;
-    border-color: rgba(255,77,77,0.3) !important;
-    box-shadow: none !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
-/* ===== 下载按钮 ===== */
+/* ===== Download 按钮 ===== */
 .stDownloadButton > button {
-    background: rgba(52, 211, 153, 0.08) !important;
-    color: var(--success) !important;
-    border: 1px solid rgba(52, 211, 153, 0.35) !important;
+    background: var(--bg-surface) !important;
+    color: var(--primary) !important;
+    -webkit-text-fill-color: var(--primary) !important;
+    border: 1px solid var(--primary) !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    padding: 0.55rem 1.4rem !important;
     font-family: var(--font-body) !important;
-    box-shadow: none !important;
-    transition: all 0.15s ease !important;
+    box-shadow: var(--shadow-1) !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
 }
 .stDownloadButton > button:hover {
-    background: rgba(52, 211, 153, 0.15) !important;
-    border-color: rgba(52, 211, 153, 0.6) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(52,211,153,0.2) !important;
+    background: var(--primary-light) !important;
+    box-shadow: var(--shadow-2) !important;
 }
 
-/* ===== 标签/Caption ===== */
-.stCaption, .stApp label {
-    color: var(--text-secondary) !important;
-    font-size: 0.82rem !important;
-}
-.stMarkdown p {
+/* ===== Selectbox ===== */
+div[data-testid="stSelectbox"] > div > div {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
     color: var(--text-primary) !important;
-    line-height: 1.65;
+    box-shadow: var(--shadow-1) !important;
+}
+div[data-testid="stSelectbox"] > div > div:hover {
+    border-color: var(--primary) !important;
 }
 
-/* ===== 进度条 ===== */
+/* ===== Radio 按钮 ===== */
+.stRadio > div > label {
+    color: var(--text-secondary) !important;
+    transition: color 0.15s;
+}
+.stRadio > div > label:hover {
+    color: var(--primary) !important;
+}
+.stRadio > div > label[data-checked="true"] {
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+}
+
+/* ===== Progress bar ===== */
 .stProgress > div > div > div {
-    background: var(--coral-bright) !important;
+    background: var(--primary) !important;
     border-radius: 999px !important;
 }
 .stProgress > div > div {
-    background: rgba(255,255,255,0.06) !important;
+    background: var(--border) !important;
     border-radius: 999px !important;
 }
 
 /* ===== Expander ===== */
 .streamlit-expanderHeader {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid var(--border-subtle) !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-weight: 600 !important;
-    backdrop-filter: blur(12px);
-    transition: background 0.2s;
+    box-shadow: var(--shadow-1);
+    transition: background 0.2s, box-shadow 0.2s;
 }
 .streamlit-expanderHeader:hover {
-    background: rgba(255, 255, 255, 0.07) !important;
+    background: var(--bg-muted) !important;
+    box-shadow: var(--shadow-2) !important;
 }
 
-/* ===== file uploader ===== */
+/* ===== File uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
 div[data-testid="stFileUploader"] section {
-    background: rgba(255,77,77,0.03) !important;
-    border: 1.5px dashed rgba(255,77,77,0.25) !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px dashed var(--border) !important;
     border-radius: 10px !important;
-    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-1);
     transition: border-color 0.2s, background 0.2s;
     flex-direction: row-reverse !important;
     justify-content: flex-end !important;
@@ -433,12 +425,16 @@ div[data-testid="stFileUploader"] section {
     padding: 1.2rem 1.5rem !important;
 }
 div[data-testid="stFileUploader"] section:hover {
-    border-color: rgba(255,77,77,0.5) !important;
-    background: rgba(255,77,77,0.06) !important;
+    border-color: var(--primary) !important;
+    background: var(--primary-light) !important;
 }
 div[data-testid="stFileUploader"] section > button {
     flex-shrink: 0 !important;
     order: -1 !important;
+    background: var(--primary) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
 }
 div[data-testid="stFileUploader"] section > div {
     flex: 1 !important;
@@ -451,116 +447,76 @@ div[data-testid="stFileUploader"] section > div > p:first-child {
     display: none !important;
 }
 
-/* ===== 标题（h1/h2/h3）渐变 ===== */
+/* ===== h1/h2/h3 标题 ===== */
 h1, h2, h3 {
-    font-family: var(--font-display) !important;
+    font-family: var(--font-body) !important;
     font-weight: 700 !important;
-    background: linear-gradient(135deg, #ff4d4d 0%, #C8B8B8 50%, #00e5cc 100%) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    letter-spacing: -0.3px;
-}
-
-/* ===== claw-accent ===== */
-.claw-accent {
-    color: var(--coral-bright);
-    margin-right: 0.35rem;
-    font-weight: 600;
-}
-
-/* ===== Section 标题行 ===== */
-.section-title-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    gap: 0.4rem;
-}
-.section-title-main {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    background: none !important;
     letter-spacing: -0.2px;
 }
 
-/* ===== 公众号定位选择器 ===== */
-.selector-container {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: border-color 0.2s;
-}
-.selector-container:hover {
-    border-color: rgba(255,77,77,0.2);
-}
+/* ===== 公众号定位选择器标签 ===== */
 .selector-label {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     font-size: 0.85rem;
     font-weight: 500;
     white-space: nowrap;
 }
 .selector-label-accent {
-    color: var(--coral-bright);
+    color: var(--primary) !important;
 }
 
-/* ===== Selectbox ===== */
-div[data-testid="stSelectbox"] > div > div {
-    background: rgba(10, 15, 26, 0.80) !important;
-    border: 1px solid var(--border-card) !important;
-    border-radius: 8px !important;
-    color: var(--text-primary) !important;
-}
-
-/* ===== Radio 按钮 ===== */
-.stRadio > div > label {
-    color: var(--text-secondary) !important;
-    transition: color 0.15s;
-}
-.stRadio > div > label:hover {
-    color: var(--text-primary) !important;
-}
-[data-testid="stRadio"] label[data-testid="stMarkdownContainer"] {
-    color: var(--text-primary) !important;
-}
-
-/* ===== Info/Warning/Success 原生提示 ===== */
+/* ===== Info/Warning/Success 原生提示框 ===== */
 div[data-testid="stAlert"] {
-    border-radius: 10px !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid var(--border-subtle) !important;
-    backdrop-filter: blur(12px);
-}
-
-/* ===== Divider ===== */
-[data-testid="stDivider"] {
-    border-color: var(--border-subtle) !important;
+    border-radius: 8px !important;
+    border-left-width: 4px !important;
 }
 
 /* ===== Sidebar ===== */
 [data-testid="stSidebar"] {
-    background: #0a0f1a !important;
-    border-right: 1px solid var(--border-subtle) !important;
+    background: var(--bg-surface) !important;
+    border-right: 1px solid var(--border) !important;
+}
+
+/* ===== Caption / small text ===== */
+.stCaption, .stCaption p {
+    color: var(--text-secondary) !important;
+    font-size: 0.8rem !important;
 }
 
 /* ===== 滚动条 ===== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: var(--bg-muted); }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255,77,77,0.25);
+    background: #bdc1c6;
     border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,77,77,0.45); }
+::-webkit-scrollbar-thumb:hover { background: #9aa0a6; }
 
 /* ===== 选中文字 ===== */
 ::selection {
-    background: rgba(255,77,77,0.25);
-    color: #fff;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+/* ===== 写作风格标签 ===== */
+.style-label {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+/* ===== Section 卡片容器 ===== */
+.section-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.5rem 0;
+    box-shadow: var(--shadow-1);
 }
 </style>
 
@@ -669,7 +625,7 @@ with st.container():
     col_pos_label, col_pos_sel = st.columns([1, 3])
     with col_pos_label:
         st.markdown(
-            '<div style="padding-top:8px;color:rgba(255,255,255,0.7);font-size:0.9rem;">📌 公众号定位</div>',
+            '<div style="padding-top:8px;color:#5f6368;font-size:0.9rem;">📌 公众号定位</div>',
             unsafe_allow_html=True,
         )
     with col_pos_sel:
@@ -805,7 +761,7 @@ if st.session_state.step == "upload":
 
     # 写作风格配置（文章级，每次处理前选择）
     st.divider()
-    st.markdown('<div style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:6px;">🎨 写作风格</div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:#5f6368;font-size:0.9rem;margin-bottom:6px;">🎨 写作风格</div>', unsafe_allow_html=True)
     style_options = config.STYLE_LIST
     selected_style = st.radio(
         "写作风格",
