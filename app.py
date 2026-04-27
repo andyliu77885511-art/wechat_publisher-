@@ -50,45 +50,45 @@ st.markdown("""
 /* ===== 字体引入 (Google Fonts) ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
-/* ===== CSS 变量 (Material Design tokens) ===== */
+/* ===== CSS 变量 (Facebook Design tokens) ===== */
 :root {
-    /* 背景 */
-    --bg-app:     #f8f9fa;
+    /* 背景 — Facebook 灰，层次更深 */
+    --bg-app:     #f0f2f5;
     --bg-surface: #ffffff;
     --bg-elevated:#ffffff;
-    --bg-muted:   #f1f3f4;
+    --bg-muted:   #e4e6ea;
 
-    /* 主色 Google Blue */
-    --primary:       #1a73e8;
-    --primary-dark:  #1557b0;
-    --primary-light: #e8f0fe;
-    --primary-glow:  rgba(26, 115, 232, 0.18);
+    /* 主色 Facebook Blue */
+    --primary:       #1877f2;
+    --primary-dark:  #0d5bbf;
+    --primary-light: #e7f0ff;
+    --primary-glow:  rgba(24, 119, 242, 0.22);
 
     /* 状态色 */
-    --success:      #34a853;
-    --success-bg:   #e6f4ea;
-    --success-bdr:  #a8d5b5;
-    --warning:      #f9ab00;
-    --warning-bg:   #fef7e0;
-    --warning-bdr:  #f9d87e;
-    --error:        #d93025;
-    --error-bg:     #fce8e6;
-    --error-bdr:    #f5b8b4;
+    --success:      #31a24c;
+    --success-bg:   #e4f5e9;
+    --success-bdr:  #9fcea8;
+    --warning:      #f0a500;
+    --warning-bg:   #fff4d9;
+    --warning-bdr:  #f5d073;
+    --error:        #e02020;
+    --error-bg:     #fde8e8;
+    --error-bdr:    #f3a8a8;
 
-    /* 边框 */
-    --border:       #dadce0;
-    --border-focus: #1a73e8;
+    /* 边框 — 更明显 */
+    --border:       #c5c8ce;
+    --border-focus: #1877f2;
 
-    /* 文字 */
-    --text-primary:   #202124;
-    --text-secondary: #5f6368;
-    --text-muted:     #9aa0a6;
+    /* 文字 — Facebook 深色系 */
+    --text-primary:   #1c1e21;
+    --text-secondary: #4b4f56;
+    --text-muted:     #8a8d91;
     --text-on-blue:   #ffffff;
 
-    /* 阴影 */
-    --shadow-1: 0 1px 2px rgba(60,64,67,0.10), 0 1px 3px rgba(60,64,67,0.10);
-    --shadow-2: 0 1px 3px rgba(60,64,67,0.12), 0 2px 6px rgba(60,64,67,0.14);
-    --shadow-3: 0 4px 8px rgba(60,64,67,0.12), 0 2px 4px rgba(60,64,67,0.10);
+    /* 阴影 — 更明显的层次感 */
+    --shadow-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.10);
+    --shadow-2: 0 2px 8px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.10);
+    --shadow-3: 0 6px 16px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.12);
 
     /* 字体 */
     --font-body:    'Inter', 'Roboto', system-ui, sans-serif;
@@ -176,14 +176,15 @@ hr {
 }
 .step-capsule-active {
     display: inline-block;
-    background: var(--primary-light);
-    color: var(--primary) !important;
-    -webkit-text-fill-color: var(--primary) !important;
-    border: 1.5px solid var(--primary);
+    background: var(--primary);
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border: 1.5px solid var(--primary-dark);
     border-radius: 100px;
-    padding: 4px 14px;
+    padding: 5px 16px;
     font-size: 0.78rem;
     font-weight: 700;
+    box-shadow: 0 2px 8px rgba(24,119,242,0.40);
     animation: ripple 1.8s infinite, slideInUp 0.3s ease both;
 }
 .step-capsule-wait {
@@ -212,7 +213,7 @@ hr {
     margin: 1rem 0;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     animation: slideInUp 0.4s ease both;
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-2);
 }
 .upload-box:hover {
     border-color: var(--primary);
@@ -270,7 +271,7 @@ hr {
 
 /* ===== 编辑区卡片 ===== */
 .editor-card {
-    border-left: 3px solid var(--primary);
+    border-left: 4px solid var(--primary);
     border-radius: 0 8px 8px 0;
     padding: 1.2rem 1.4rem;
     background: var(--bg-surface);
@@ -278,7 +279,7 @@ hr {
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-bottom: 1rem;
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-2);
     animation: slideInUp 0.4s ease both;
 }
 
@@ -413,37 +414,63 @@ div[data-testid="stSelectbox"] > div > div:hover {
 
 /* ===== File uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
-div[data-testid="stFileUploader"] section {
+
+/* section 强制 flex 横排，按钮在左 */
+div[data-testid="stFileUploader"] section,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
+div[data-testid="stFileUploader"] div[role="presentation"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 1.2rem !important;
+    padding: 1.2rem 1.5rem !important;
     background: var(--bg-surface) !important;
     border: 1.5px dashed var(--border) !important;
     border-radius: 10px !important;
     box-shadow: var(--shadow-1);
     transition: border-color 0.2s, background 0.2s;
-    flex-direction: row-reverse !important;
-    justify-content: flex-end !important;
-    gap: 1.2rem !important;
-    padding: 1.2rem 1.5rem !important;
 }
-div[data-testid="stFileUploader"] section:hover {
+div[data-testid="stFileUploader"] section:hover,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
     border-color: var(--primary) !important;
     background: var(--primary-light) !important;
 }
-div[data-testid="stFileUploader"] section > button {
-    flex-shrink: 0 !important;
+
+/* 按钮放最左：order -1，禁止收缩 */
+div[data-testid="stFileUploader"] section > button,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button,
+div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     order: -1 !important;
+    flex-shrink: 0 !important;
     background: var(--primary) !important;
-    color: #fff !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     border: none !important;
     border-radius: 6px !important;
+    font-weight: 600 !important;
+    padding: 0.45rem 1.1rem !important;
+    box-shadow: var(--shadow-1) !important;
 }
-div[data-testid="stFileUploader"] section > div {
+div[data-testid="stFileUploader"] section > button:hover,
+div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]:hover {
+    background: var(--primary-dark) !important;
+}
+
+/* 格式说明 div 在右 */
+div[data-testid="stFileUploader"] section > div,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div {
     flex: 1 !important;
+    order: 0 !important;
     text-align: left !important;
 }
+
 /* 隐藏"将文件拖放到此处"文字，只保留浏览文件按钮 */
 div[data-testid="stFileUploader"] section > div > span,
 div[data-testid="stFileUploader"] section > div > small,
-div[data-testid="stFileUploader"] section > div > p:first-child {
+div[data-testid="stFileUploader"] section > div > p:first-child,
+div[data-testid="stFileUploaderDropzone"] > div > span,
+div[data-testid="stFileUploaderDropzone"] > div > small {
     display: none !important;
 }
 
@@ -516,7 +543,7 @@ div[data-testid="stAlert"] {
     border-radius: 10px;
     padding: 1rem 1.2rem;
     margin: 0.5rem 0;
-    box-shadow: var(--shadow-1);
+    box-shadow: var(--shadow-2);
 }
 </style>
 
