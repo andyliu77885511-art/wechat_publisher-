@@ -437,33 +437,22 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
     background: var(--primary-light) !important;
 }
 
-/* 按钮放最左：order -1，禁止收缩，隐藏原始文字用::after注入 */
+/* 按钮放最左：order -1 */
 div[data-testid="stFileUploader"] section > button,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     order: -1 !important;
     flex-shrink: 0 !important;
-    min-width: 0 !important;
+    min-width: 130px !important;
     white-space: nowrap !important;
     background: var(--primary) !important;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-    font-size: 0 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
     border: none !important;
     border-radius: 6px !important;
     font-weight: 600 !important;
     padding: 0.5rem 1.4rem !important;
     box-shadow: var(--shadow-1) !important;
-    position: relative !important;
-}
-div[data-testid="stFileUploader"] section > button::after,
-div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button::after,
-div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]::after {
-    content: "Upload" !important;
-    color: #ffffff !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    white-space: nowrap !important;
 }
 div[data-testid="stFileUploader"] section > button:hover,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]:hover {
@@ -478,13 +467,20 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div {
     text-align: left !important;
 }
 
-/* 隐藏"将文件拖放到此处"文字，只保留浏览文件按钮 */
-div[data-testid="stFileUploader"] section > div > span,
+/* 隐藏"将文件拖放到此处"文字，只保留浏览文件按钮；排除按钮内 span */
+div[data-testid="stFileUploader"] section > div > span:not(button span),
 div[data-testid="stFileUploader"] section > div > small,
 div[data-testid="stFileUploader"] section > div > p:first-child,
-div[data-testid="stFileUploaderDropzone"] > div > span,
+div[data-testid="stFileUploaderDropzone"] > div > span:not(button span),
 div[data-testid="stFileUploaderDropzone"] > div > small {
     display: none !important;
+}
+/* 确保按钮内 span/文字可见 */
+div[data-testid="stFileUploader"] button span,
+div[data-testid="stFileUploader"] button p {
+    display: inline !important;
+    visibility: visible !important;
+    color: #ffffff !important;
 }
 
 /* ===== h1/h2/h3 标题 ===== */
