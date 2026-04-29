@@ -163,14 +163,9 @@ st.markdown("""
     z-index: 1;
 }
 
-/* ===== 全局文字覆盖（深色背景上确保可读） ===== */
-p, span, label, div, li, td, th, caption {
-    color: var(--text-primary) !important;
-}
 
 /* ===== Header ===== */
 .app-header {
-    animation: fadeInDown 0.5s ease both;
     font-family: var(--font-display) !important;
     font-size: 1.9rem;
     font-weight: 700;
@@ -770,54 +765,6 @@ if not cfg_result["ok"]:
 
 st.divider()
 
-# ── 公众号定位选择器（常驻顶部，随时可切换）────────────────────────────────────────
-st.markdown('<div class="config-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-label">📌 公众号定位</div>', unsafe_allow_html=True)
-with st.container():
-    col_pos_label, col_pos_sel = st.columns([1, 3])
-    with col_pos_label:
-        st.markdown(
-            '<div style="padding-top:8px;color:var(--text-secondary);font-size:0.88rem;font-weight:500;">当前定位</div>',
-            unsafe_allow_html=True,
-        )
-    with col_pos_sel:
-        # 如果当前 category 是自定义名称（不在列表里），选择器显示"其他"
-        _current_in_list = st.session_state.category in config.CATEGORY_LIST
-        _selector_index = (
-            config.CATEGORY_LIST.index(st.session_state.category)
-            if _current_in_list
-            else config.CATEGORY_LIST.index("其他")
-        )
-        selected_category = st.selectbox(
-            "公众号定位",
-            options=config.CATEGORY_LIST,
-            index=_selector_index,
-            label_visibility="collapsed",
-            key="category_selector",
-        )
-        if selected_category == "其他":
-            # 自定义定位输入框
-            _custom_val = "" if _current_in_list else st.session_state.category
-            custom_category = st.text_input(
-                "输入自定义定位名称",
-                value=_custom_val,
-                placeholder="例如：母婴、健身、旅游...",
-                label_visibility="collapsed",
-                key="custom_category_input",
-            )
-            _effective = custom_category.strip() if custom_category.strip() else "其他"
-            if _effective != st.session_state.category:
-                st.session_state.category = _effective
-                st.rerun()
-        else:
-            if selected_category != st.session_state.category:
-                st.session_state.category = selected_category
-                st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)  # close config-card
-
-st.divider()
-
 # ── 进度指示器 ───────────────────────────────────────────────────────────────────
 
 STEPS = [
@@ -912,6 +859,51 @@ if st.session_state.step == "upload":
         # 用户清除了文件，重置保存状态
         st.session_state.file_saved = False
         st.session_state._upload_key = None
+
+    # ── 公众号定位选择器（上传区下方）──────────────────────────────────────────
+    st.divider()
+    st.markdown('<div class="config-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">📌 公众号定位</div>', unsafe_allow_html=True)
+    with st.container():
+        col_pos_label, col_pos_sel = st.columns([1, 3])
+        with col_pos_label:
+            st.markdown(
+                '<div style="padding-top:8px;color:var(--text-secondary);font-size:0.88rem;font-weight:500;">当前定位</div>',
+                unsafe_allow_html=True,
+            )
+        with col_pos_sel:
+            _current_in_list = st.session_state.category in config.CATEGORY_LIST
+            _selector_index = (
+                config.CATEGORY_LIST.index(st.session_state.category)
+                if _current_in_list
+                else config.CATEGORY_LIST.index("其他")
+            )
+            selected_category = st.selectbox(
+                "公众号定位",
+                options=config.CATEGORY_LIST,
+                index=_selector_index,
+                label_visibility="collapsed",
+                key="category_selector",
+            )
+            if selected_category != st.session_state.category:
+                st.session_state.category = selected_category
+                st.rerun()
+            if selected_category == "其他":
+                # P2: 防抖 — 用 on_change 回调，只在失焦时更新，不在每次输入时 rerun
+                def _on_custom_category_change():
+                    val = st.session_state.get("custom_category_input", "").strip()
+                    st.session_state.category = val if val else "其他"
+
+                _custom_val = "" if _current_in_list else st.session_state.category
+                st.text_input(
+                    "输入自定义定位名称",
+                    value=_custom_val,
+                    placeholder="例如：母婴、健身、旅游...",
+                    label_visibility="collapsed",
+                    key="custom_category_input",
+                    on_change=_on_custom_category_change,
+                )
+    st.markdown('</div>', unsafe_allow_html=True)  # close config-card
 
     # 写作风格配置（文章级，每次处理前选择）
     st.divider()
@@ -1202,7 +1194,8 @@ elif st.session_state.step == "preview":
     col_prev, col_next, col_down = st.columns([1, 1, 1])
     with col_prev:
         if st.button("← 上一步", use_container_width=True):
-            reset_state()
+            # 只回退步骤，保留已上传的文件信息和生成结果
+            st.session_state.step = "upload"
             st.rerun()
     with col_next:
         if st.button("确认发布 →", type="primary", use_container_width=True):
@@ -1230,3 +1223,69 @@ elif st.session_state.step == "preview":
                 mime="text/plain",
                 use_container_width=True,
             )
+
+
+# ══════════════════════════════════════════════════════════════════════════════════
+# STEP 4: 发布确认
+# ══════════════════════════════════════════════════════════════════════════════════
+
+elif st.session_state.step == "publish":
+
+    st.subheader("发布确认")
+
+    _title   = st.session_state.article_title or "（无标题）"
+    _content = st.session_state.article_content or ""
+    _wc      = word_count(_content)
+
+    # 文章摘要卡片
+    st.markdown(
+        f'''<div class="section-card" style="margin-bottom:1.2rem;">
+            <div class="section-label">📄 文章信息</div>
+            <div style="margin-top:0.8rem;">
+                <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">{_title}</div>
+                <div style="color:var(--text-secondary);font-size:0.88rem;">
+                    字数：{_wc} 字 &nbsp;|&nbsp; 定位：{st.session_state.category} &nbsp;|&nbsp; 风格：{st.session_state.writing_style}
+                </div>
+            </div>
+        </div>''',
+        unsafe_allow_html=True,
+    )
+
+    # 内容预览（折叠）
+    with st.expander("📖 查看文章内容"):
+        st.markdown(f"## {_title}")
+        st.markdown(_content)
+
+    st.divider()
+
+    # 微信发布功能说明
+    st.markdown(
+        '<div class="warn-box">⚠️ 微信公众号直接发布功能暂未开放（需配置 WX_APP_SECRET）。'
+        '你可以下载文章后手动发布到公众号后台。</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    col_back, col_download, col_done = st.columns([1, 1, 1])
+
+    with col_back:
+        if st.button("← 返回编辑", use_container_width=True):
+            st.session_state.step = "preview"
+            st.rerun()
+
+    with col_download:
+        if _content:
+            txt_content = f"{_title}\n\n{_content}\n\n---\n以上内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。"
+            st.download_button(
+                "📥 下载文章",
+                txt_content.encode("utf-8"),
+                file_name=f"{_title[:30] or 'article'}.txt",
+                mime="text/plain",
+                use_container_width=True,
+            )
+
+    with col_done:
+        if st.button("✅ 完成，处理新文章", type="primary", use_container_width=True):
+            reset_state()
+            st.rerun()
