@@ -66,7 +66,7 @@ st.markdown("""
     --primary-soft:  rgba(24, 119, 242, 0.10);
 
     /* 状态色 */
-    --success:      #31A24C;
+    --success:      #1E7E34;
     --success-bg:   rgba(49, 162, 76, 0.10);
     --success-bdr:  rgba(49, 162, 76, 0.30);
     --warning:      #F7B928;
@@ -83,8 +83,8 @@ st.markdown("""
 
     /* 文字 */
     --text-primary:   #050505;
-    --text-secondary: #65676B;
-    --text-muted:     #606770;
+    --text-secondary: #444950;
+    --text-muted:     #444950;
 
     /* 卡片 */
     --surface-card:   #ffffff;
@@ -146,7 +146,7 @@ st.markdown("""
 }
 .app-subtitle {
     animation: fadeInDown 0.7s ease both;
-    color: var(--text-muted) !important;
+    color: #444950 !important;
     font-size: 0.8rem;
     margin-top: 0;
 }
@@ -166,7 +166,7 @@ hr {
 .step-capsule-done {
     display: inline-block;
     background: var(--success-bg);
-    color: var(--success) !important;
+    color: #1a7a35 !important;
     border: 1px solid var(--success-bdr);
     border-radius: 100px;
     padding: 4px 14px;
@@ -190,7 +190,7 @@ hr {
 .step-capsule-wait {
     display: inline-block;
     background: transparent;
-    color: var(--text-muted) !important;
+    color: #444950 !important;
     border: 1px solid var(--border);
     border-radius: 100px;
     padding: 4px 14px;
@@ -201,7 +201,7 @@ hr {
 /* ===== 子步骤状态 ===== */
 .step-done   { color: var(--success) !important; font-weight: 600; }
 .step-active { color: var(--primary) !important; font-weight: 600; }
-.step-wait   { color: var(--text-muted) !important; }
+.step-wait   { color: #444950 !important; }
 
 /* ===== 公众号定位选择器卡片 ===== */
 .config-card {
@@ -223,7 +223,7 @@ hr {
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-muted) !important;
+    color: #1c1e21 !important;
     margin-bottom: 0.6rem;
     display: flex;
     align-items: center;
@@ -245,7 +245,7 @@ hr {
     padding: 3px 12px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--primary) !important;
+    color: var(--primary-dark) !important;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-left: 8px;
@@ -282,7 +282,7 @@ hr {
     margin-bottom: 0.3rem;
 }
 .upload-hint {
-    color: var(--text-secondary) !important;
+    color: #444950 !important;
     font-size: 0.82rem;
     line-height: 1.5;
 }
@@ -354,7 +354,7 @@ hr {
 /* ===== 标签文字 ===== */
 .stTextInput label, .stTextArea label, .stSelectbox label,
 .stRadio label, .stFileUploader label {
-    color: var(--text-secondary) !important;
+    color: #1c1e21 !important;
     font-size: 0.85rem !important;
     font-weight: 500 !important;
 }
@@ -386,9 +386,9 @@ hr {
     box-shadow: none !important;
 }
 .stButton > button:disabled {
-    background: #BCC0C4 !important;
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
+    background: #E4E6EB !important;
+    color: #606770 !important;
+    -webkit-text-fill-color: #606770 !important;
     cursor: not-allowed !important;
     box-shadow: none !important;
     transform: none !important;
@@ -428,7 +428,7 @@ div[data-testid="stSelectbox"] > div > div:hover {
 
 /* ===== Radio 按钮 ===== */
 .stRadio > div > label {
-    color: var(--text-secondary) !important;
+    color: #1c1e21 !important;
     transition: color 0.15s;
 }
 .stRadio > div > label:hover {
@@ -550,7 +550,7 @@ h1, h2, h3 {
 
 /* ===== 公众号定位选择器标签 ===== */
 .selector-label {
-    color: var(--text-secondary) !important;
+    color: #1c1e21 !important;
     font-size: 0.85rem;
     font-weight: 500;
     white-space: nowrap;
@@ -574,7 +574,7 @@ div[data-testid="stAlert"] {
 
 /* ===== Caption / small text ===== */
 .stCaption, .stCaption p {
-    color: var(--text-muted) !important;
+    color: #444950 !important;
     font-size: 0.8rem !important;
 }
 
@@ -595,7 +595,7 @@ div[data-testid="stAlert"] {
 
 /* ===== 写作风格标签 ===== */
 .style-label {
-    color: var(--text-secondary) !important;
+    color: #1c1e21 !important;
     font-size: 0.9rem;
     margin-bottom: 6px;
     font-weight: 500;
@@ -815,7 +815,7 @@ if st.session_state.step == "upload":
         col_pos_label, col_pos_sel = st.columns([1, 3])
         with col_pos_label:
             st.markdown(
-                '<div style="padding-top:8px;color:var(--text-secondary);font-size:0.88rem;font-weight:500;">当前定位</div>',
+                '<div style="padding-top:8px;color:#1c1e21;font-size:0.88rem;font-weight:500;">当前定位</div>',
                 unsafe_allow_html=True,
             )
         with col_pos_sel:
@@ -1190,7 +1190,7 @@ elif st.session_state.step == "publish":
             <div class="section-label">📄 文章信息</div>
             <div style="margin-top:0.8rem;">
                 <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem;">{_title}</div>
-                <div style="color:var(--text-secondary);font-size:0.88rem;">
+                <div style="color:#1c1e21;font-size:0.88rem;">
                     字数：{_wc} 字 &nbsp;|&nbsp; 定位：{st.session_state.category} &nbsp;|&nbsp; 风格：{st.session_state.writing_style}
                 </div>
             </div>
