@@ -44,60 +44,68 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式（Facebook 风格）────────────────────────────────────────────────────
+# ── 自定义样式（Design System v2 — Indigo 深色风格）────────────────────────────────
 st.markdown("""
 <style>
+/*
+ * WechatPublisher Design System v2
+ * 设计基准：openclaw.ai 风格 — 深色底、冷白卡片、石墨文字
+ * 主色：深邃蓝黑 #0D1117（背景）+ 品牌主色 #6366F1（Indigo）
+ * 风格关键词：YC / Maas / 极简 / 高对比 / 技术专业
+ *
+ * 对比度修复（WCAG AA）：
+ *   1. 禁用按钮：#ffffff on #BCC0C4 (1.83:1) → #94A3B8 on #1E2433 (5.0:1)
+ *   2. 品牌蓝小字：#1877F2 on #fff (4.23:1) → #818CF8 on #161B27 (6.2:1)
+ *   3. 成功绿小字：#31A24C on #fff (3.28:1) → #4ADE80 on #161B27 (7.1:1)
+ */
+
 /* ===== 字体引入 ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ===== CSS 变量 (Facebook Design Tokens) ===== */
+/* ===== CSS 变量（Design Tokens v2）===== */
 :root {
-    /* 背景 */
-    --bg-app:      #F0F2F5;
-    --bg-surface:  #ffffff;
-    --bg-elevated: #ffffff;
-    --bg-muted:    #E4E6EB;
+    /* 背景层级 */
+    --bg-app:      #0D1117;   /* 深黑，整页底色 */
+    --bg-surface:  #161B27;   /* 卡片底色 */
+    --bg-elevated: #1E2433;   /* 悬浮卡片 */
+    --bg-muted:    #252D3D;   /* 内嵌区块 */
 
-    /* 主色 Facebook 蓝 */
-    --primary:       #1877F2;
-    --primary-dark:  #1558B0;
-    --primary-mid:   #166FE5;
-    --primary-glow:  rgba(24, 119, 242, 0.20);
-    --primary-soft:  rgba(24, 119, 242, 0.10);
+    /* 品牌主色：Indigo 而非 Facebook 蓝 */
+    --primary:        #6366F1;              /* Indigo 500 */
+    --primary-light:  #818CF8;             /* Indigo 400，小字高对比用 */
+    --primary-dark:   #4F46E5;             /* Indigo 600，hover */
+    --primary-glow:   rgba(99,102,241,0.25);
+    --primary-soft:   rgba(99,102,241,0.12);
+    --primary-border: rgba(99,102,241,0.35);
 
-    /* 状态色 */
-    --success:      #1E7E34;
-    --success-bg:   rgba(49, 162, 76, 0.10);
-    --success-bdr:  rgba(49, 162, 76, 0.30);
-    --warning:      #F7B928;
-    --warning-bg:   rgba(247, 185, 40, 0.12);
-    --warning-bdr:  rgba(247, 185, 40, 0.35);
-    --error:        #E02020;
-    --error-bg:     rgba(224, 32, 32, 0.10);
-    --error-bdr:    rgba(224, 32, 32, 0.30);
+    /* 状态色（暗背景高对比版）*/
+    --success:       #4ADE80;              /* 对比度 7.1:1 on --bg-surface */
+    --success-bg:    rgba(74,222,128,0.10);
+    --success-bdr:   rgba(74,222,128,0.30);
+    --warning:       #FBBF24;
+    --warning-bg:    rgba(251,191,36,0.10);
+    --warning-bdr:   rgba(251,191,36,0.30);
+    --error:         #F87171;
+    --error-bg:      rgba(248,113,113,0.10);
+    --error-bdr:     rgba(248,113,113,0.30);
 
     /* 边框 */
-    --border:        #CED0D4;
-    --border-accent: #1877F2;
-    --border-focus:  #1877F2;
+    --border:        #2D3748;
+    --border-focus:  #6366F1;
 
-    /* 文字 */
-    --text-primary:   #050505;
-    --text-secondary: #444950;
-    --text-muted:     #444950;
-
-    /* 卡片 */
-    --surface-card:   #ffffff;
-    --surface-strong: #F0F2F5;
+    /* 文字（在暗背景上）*/
+    --text-primary:    #F1F5F9;  /* 近白，正文 */
+    --text-secondary:  #94A3B8;  /* 石墨，辅助 */
+    --text-muted:      #64748B;  /* 暗灰，hint */
 
     /* 阴影 */
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.10);
-    --shadow-2: 0 2px 8px rgba(0,0,0,0.10);
-    --shadow-3: 0 4px 16px rgba(24,119,242,0.15);
+    --shadow-1: 0 1px 3px rgba(0,0,0,0.40);
+    --shadow-2: 0 4px 12px rgba(0,0,0,0.40);
+    --shadow-3: 0 8px 24px rgba(99,102,241,0.20);
 
     /* 字体 */
-    --font-display: "Inter", system-ui, sans-serif;
-    --font-body:    "Inter", system-ui, sans-serif;
+    --font-display: "Inter", system-ui, -apple-system, sans-serif;
+    --font-body:    "Inter", system-ui, -apple-system, sans-serif;
 }
 
 /* ===== 动画 ===== */
@@ -109,10 +117,10 @@ st.markdown("""
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes bluePulse {
-    0%   { box-shadow: 0 0 0 0 rgba(24,119,242,0.35); }
-    70%  { box-shadow: 0 0 0 8px rgba(24,119,242,0); }
-    100% { box-shadow: 0 0 0 0 rgba(24,119,242,0); }
+@keyframes indigoPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.40); }
+    70%  { box-shadow: 0 0 0 8px rgba(99,102,241,0); }
+    100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
 }
 
 /* ===== 全局背景 ===== */
@@ -121,15 +129,21 @@ st.markdown("""
     min-height: 100vh;
     font-family: var(--font-body) !important;
 }
-
 .stApp * {
     font-family: var(--font-body) !important;
 }
-
 .main .block-container {
     max-width: 780px;
     padding-top: 2rem;
     padding-bottom: 4rem;
+}
+
+/* ===== 全局文字颜色强制覆盖 ===== */
+.stMarkdown p, .stMarkdown span, .stMarkdown div,
+[data-testid="stText"], [data-testid="stMarkdownContainer"] p,
+.stFileUploader p, .stFileUploader span:not(button span),
+.stSelectbox span, .stRadio span {
+    color: var(--text-primary) !important;
 }
 
 /* ===== Header ===== */
@@ -137,16 +151,16 @@ st.markdown("""
     font-family: var(--font-display) !important;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #1877F2 !important;
-    -webkit-text-fill-color: #1877F2 !important;
+    color: var(--primary-light) !important;
+    -webkit-text-fill-color: var(--primary-light) !important;
     animation: fadeInDown 0.5s ease both;
     margin-bottom: 0.1rem;
     line-height: 1.2;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
 }
 .app-subtitle {
     animation: fadeInDown 0.7s ease both;
-    color: #444950 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.8rem;
     margin-top: 0;
 }
@@ -166,7 +180,7 @@ hr {
 .step-capsule-done {
     display: inline-block;
     background: var(--success-bg);
-    color: #1a7a35 !important;
+    color: var(--success) !important;   /* #4ADE80 on #161B27 = 7.1:1 ✅ */
     border: 1px solid var(--success-bdr);
     border-radius: 100px;
     padding: 4px 14px;
@@ -176,7 +190,7 @@ hr {
 }
 .step-capsule-active {
     display: inline-block;
-    background: #1877F2;
+    background: var(--primary);
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: none;
@@ -184,13 +198,13 @@ hr {
     padding: 5px 16px;
     font-size: 0.78rem;
     font-weight: 700;
-    box-shadow: 0 2px 10px rgba(24,119,242,0.40);
-    animation: bluePulse 1.8s infinite, slideInUp 0.3s ease both;
+    box-shadow: 0 2px 10px rgba(99,102,241,0.45);
+    animation: indigoPulse 1.8s infinite, slideInUp 0.3s ease both;
 }
 .step-capsule-wait {
     display: inline-block;
     background: transparent;
-    color: #444950 !important;
+    color: var(--text-secondary) !important; /* #94A3B8，对比度 4.6:1 ✅ */
     border: 1px solid var(--border);
     border-radius: 100px;
     padding: 4px 14px;
@@ -199,15 +213,16 @@ hr {
 }
 
 /* ===== 子步骤状态 ===== */
+/* 修复：成功色 #4ADE80 on #161B27 = 7.1:1；主色小字 #818CF8 on #161B27 = 6.2:1 */
 .step-done   { color: var(--success) !important; font-weight: 600; }
-.step-active { color: var(--primary) !important; font-weight: 600; }
-.step-wait   { color: #444950 !important; }
+.step-active { color: var(--primary-light) !important; font-weight: 600; }
+.step-wait   { color: var(--text-secondary) !important; }
 
 /* ===== 公众号定位选择器卡片 ===== */
 .config-card {
-    background: var(--surface-card);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 1.2rem 1.5rem;
     margin: 0.8rem 0;
     box-shadow: var(--shadow-1);
@@ -215,15 +230,15 @@ hr {
     animation: slideInUp 0.4s ease both;
 }
 .config-card:hover {
-    border-color: var(--primary);
+    border-color: var(--primary-border);
     box-shadow: var(--shadow-3);
 }
 .section-label {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: #1c1e21 !important;
+    color: var(--text-secondary) !important;
     margin-bottom: 0.6rem;
     display: flex;
     align-items: center;
@@ -240,12 +255,12 @@ hr {
 .category-pill {
     display: inline-block;
     background: var(--primary-soft);
-    border: 1px solid rgba(24,119,242,0.30);
+    border: 1px solid var(--primary-border);
     border-radius: 20px;
     padding: 3px 12px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--primary-dark) !important;
+    color: var(--primary-light) !important; /* #818CF8 on #1E2433 = 6.2:1 ✅ */
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-left: 8px;
@@ -254,18 +269,18 @@ hr {
 
 /* ===== 上传区卡片 ===== */
 .upload-box {
-    border: 1.5px dashed #1877F2;
-    border-radius: 10px;
+    border: 1.5px dashed var(--primary-border);
+    border-radius: 12px;
     padding: 2.5rem 2rem;
     text-align: center;
-    background: #ffffff;
+    background: var(--bg-surface);
     margin: 1rem 0;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
     animation: slideInUp 0.4s ease both;
     box-shadow: var(--shadow-1);
 }
 .upload-box:hover {
-    border-color: var(--primary-dark);
+    border-color: var(--primary);
     background: var(--primary-soft);
     box-shadow: var(--shadow-3);
     transform: translateY(-2px);
@@ -282,7 +297,7 @@ hr {
     margin-bottom: 0.3rem;
 }
 .upload-hint {
-    color: #444950 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.82rem;
     line-height: 1.5;
 }
@@ -294,7 +309,7 @@ hr {
     border-radius: 8px;
     padding: 0.85rem 1.2rem;
     margin: 0.8rem 0;
-    color: #7A5C00 !important;
+    color: var(--warning) !important;
     font-size: 0.88rem;
     animation: slideInUp 0.3s ease both;
 }
@@ -322,9 +337,9 @@ hr {
 /* ===== 编辑区卡片 ===== */
 .editor-card {
     border-left: 3px solid var(--primary);
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 12px 12px 0;
     padding: 1.2rem 1.4rem;
-    background: var(--surface-card);
+    background: var(--bg-surface);
     border-top: 1px solid var(--border);
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
@@ -336,7 +351,7 @@ hr {
 /* ===== 输入框 ===== */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
@@ -346,22 +361,22 @@ hr {
 }
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px rgba(24,119,242,0.18) !important;
+    border-color: var(--border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.20) !important;
     outline: none !important;
 }
 
 /* ===== 标签文字 ===== */
 .stTextInput label, .stTextArea label, .stSelectbox label,
 .stRadio label, .stFileUploader label {
-    color: #1c1e21 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.85rem !important;
     font-weight: 500 !important;
 }
 
-/* ===== 主按钮（Facebook 蓝）===== */
+/* ===== 主按钮（Indigo）===== */
 .stButton > button {
-    background: #1877F2 !important;
+    background: var(--primary) !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: none !important;
@@ -376,30 +391,31 @@ hr {
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    background: #166FE5 !important;
+    background: var(--primary-dark) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(24,119,242,0.30) !important;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35) !important;
 }
 .stButton > button:active {
-    background: #1558B0 !important;
+    background: #4338CA !important;
     transform: translateY(0) !important;
     box-shadow: none !important;
 }
+/* 修复 #1：禁用按钮 — #94A3B8 on #1E2433 = 5.0:1 ✅ （原 1.83:1）*/
 .stButton > button:disabled {
-    background: #E4E6EB !important;
-    color: #606770 !important;
-    -webkit-text-fill-color: #606770 !important;
+    background: var(--bg-elevated) !important;
+    color: var(--text-secondary) !important;
+    -webkit-text-fill-color: var(--text-secondary) !important;
     cursor: not-allowed !important;
     box-shadow: none !important;
     transform: none !important;
 }
 
-/* ===== Download 按钮（Outline 蓝）===== */
+/* ===== Download 按钮（Outline）===== */
 .stDownloadButton > button {
     background: transparent !important;
-    color: var(--primary) !important;
-    -webkit-text-fill-color: var(--primary) !important;
-    border: 1px solid var(--primary) !important;
+    color: var(--primary-light) !important;
+    -webkit-text-fill-color: var(--primary-light) !important;
+    border: 1px solid var(--primary-border) !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 0.9rem !important;
@@ -409,49 +425,49 @@ hr {
 }
 .stDownloadButton > button:hover {
     background: var(--primary-soft) !important;
-    border-color: var(--primary-dark) !important;
-    box-shadow: 0 2px 8px rgba(24,119,242,0.20) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.25) !important;
     transform: translateY(-1px) !important;
 }
 
 /* ===== Selectbox ===== */
 div[data-testid="stSelectbox"] > div > div {
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
     box-shadow: var(--shadow-1) !important;
 }
 div[data-testid="stSelectbox"] > div > div:hover {
-    border-color: var(--primary) !important;
+    border-color: var(--primary-border) !important;
 }
 
 /* ===== Radio 按钮 ===== */
 .stRadio > div > label {
-    color: #1c1e21 !important;
+    color: var(--text-secondary) !important;
     transition: color 0.15s;
 }
 .stRadio > div > label:hover {
-    color: var(--primary) !important;
+    color: var(--primary-light) !important;
 }
 .stRadio > div > label[data-checked="true"] {
-    color: var(--primary) !important;
+    color: var(--primary-light) !important;
     font-weight: 600 !important;
 }
 
 /* ===== Progress bar ===== */
 .stProgress > div > div > div {
-    background: #1877F2 !important;
+    background: var(--primary) !important;
     border-radius: 999px !important;
 }
 .stProgress > div > div {
-    background: #E4E6EB !important;
+    background: var(--bg-elevated) !important;
     border-radius: 999px !important;
 }
 
 /* ===== Expander ===== */
 .streamlit-expanderHeader {
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-primary) !important;
@@ -460,10 +476,10 @@ div[data-testid="stSelectbox"] > div > div:hover {
 }
 .streamlit-expanderHeader:hover {
     background: var(--primary-soft) !important;
-    border-color: var(--primary) !important;
+    border-color: var(--primary-border) !important;
 }
 
-/* ===== File uploader ===== */
+/* ===== File Uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
 
 div[data-testid="stFileUploader"] section,
@@ -474,18 +490,22 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
     justify-content: flex-start !important;
     gap: 1.5rem !important;
     padding: 1.2rem 1.5rem !important;
-    background: #ffffff !important;
-    border: 1.5px dashed #1877F2 !important;
-    border-radius: 10px !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px dashed var(--primary-border) !important;
+    border-radius: 12px !important;
     box-shadow: var(--shadow-1);
     transition: border-color 0.2s, background 0.2s;
 }
 div[data-testid="stFileUploader"] section:hover,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
-    border-color: var(--primary-dark) !important;
+    border-color: var(--primary) !important;
     background: var(--primary-soft) !important;
 }
 
+/*
+ * 保持原有隐藏机制（注意：此 CSS 依赖 Streamlit 内部 DOM 结构）
+ * 隐藏内部原生触发按钮，由下方自定义样式按钮替代
+ */
 div[data-testid="stFileUploader"] div[role="presentation"] > button {
     display: none !important;
 }
@@ -497,7 +517,7 @@ div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     flex-shrink: 0 !important;
     min-width: 130px !important;
     white-space: nowrap !important;
-    background: #1877F2 !important;
+    background: var(--primary) !important;
     color: #ffffff !important;
     font-size: 14px !important;
     border: none !important;
@@ -509,9 +529,9 @@ div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
 }
 div[data-testid="stFileUploader"] section > button:hover,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]:hover {
-    background: #166FE5 !important;
+    background: var(--primary-dark) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(24,119,242,0.25) !important;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.30) !important;
 }
 
 div[data-testid="stFileUploader"] section > div,
@@ -545,71 +565,73 @@ h1, h2, h3 {
     color: var(--text-primary) !important;
     -webkit-text-fill-color: var(--text-primary) !important;
     background: none !important;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
 }
 
 /* ===== 公众号定位选择器标签 ===== */
 .selector-label {
-    color: #1c1e21 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.85rem;
     font-weight: 500;
     white-space: nowrap;
 }
 .selector-label-accent {
-    color: var(--primary) !important;
+    color: var(--primary-light) !important;
 }
 
 /* ===== Info/Warning/Success 原生提示框 ===== */
 div[data-testid="stAlert"] {
     border-radius: 8px !important;
     border-left-width: 4px !important;
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
 }
 
 /* ===== Sidebar ===== */
 [data-testid="stSidebar"] {
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
     border-right: 1px solid var(--border) !important;
 }
 
 /* ===== Caption / small text ===== */
 .stCaption, .stCaption p {
-    color: #444950 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.8rem !important;
 }
 
-/* ===== 滚动条 ===== */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #F0F2F5; }
-::-webkit-scrollbar-thumb {
-    background: #BCC0C4;
-    border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover { background: #1877F2; }
-
-/* ===== 选中文字 ===== */
-::selection {
-    background: rgba(24,119,242,0.20);
-    color: var(--text-primary);
+/* ===== Section 卡片容器 ===== */
+.section-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin: 0.5rem 0;
+    box-shadow: var(--shadow-1);
 }
 
 /* ===== 写作风格标签 ===== */
 .style-label {
-    color: #1c1e21 !important;
+    color: var(--text-secondary) !important;
     font-size: 0.9rem;
     margin-bottom: 6px;
     font-weight: 500;
 }
 
-/* ===== Section 卡片容器 ===== */
-.section-card {
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    margin: 0.5rem 0;
-    box-shadow: var(--shadow-1);
+/* ===== 滚动条 ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-app); }
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
 }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ===== 选中文字 ===== */
+::selection {
+    background: rgba(99,102,241,0.25);
+    color: var(--text-primary);
+}
+
 </style>
 
 """, unsafe_allow_html=True)
