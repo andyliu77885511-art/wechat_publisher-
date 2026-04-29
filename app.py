@@ -44,89 +44,75 @@ st.set_page_config(
     layout="centered",
 )
 
-# ── 自定义样式（OpenClaw 深空黑 + Coral 红风格）─────────────────────────────────────
+# ── 自定义样式（Facebook 风格）────────────────────────────────────────────────────
 st.markdown("""
 <style>
-/* ===== 字体引入 (Fontshare — openclaw.ai 同款) ===== */
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@400,500,700&display=swap');
+/* ===== 字体引入 ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ===== CSS 变量 (OpenClaw Design Tokens) ===== */
+/* ===== CSS 变量 (Facebook Design Tokens) ===== */
 :root {
-    /* 背景 — 深空黑，严格不带蓝色渗入 */
-    --bg-app:      #050810;
-    --bg-surface:  #0a0f1a;
-    --bg-elevated: #111827;
-    --bg-muted:    #0d1220;
+    /* 背景 */
+    --bg-app:      #F0F2F5;
+    --bg-surface:  #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-muted:    #E4E6EB;
 
-    /* 主色 Coral 珊瑚红 */
-    --primary:       #ff4d4d;
-    --primary-dark:  #991b1b;
-    --primary-mid:   #e63946;
-    --primary-glow:  rgba(255, 77, 77, 0.22);
-    --primary-soft:  rgba(255, 77, 77, 0.12);
-
-    /* 次色 Cyan 青色 */
-    --cyan:          #00e5cc;
-    --cyan-soft:     rgba(0, 229, 204, 0.12);
+    /* 主色 Facebook 蓝 */
+    --primary:       #1877F2;
+    --primary-dark:  #1558B0;
+    --primary-mid:   #166FE5;
+    --primary-glow:  rgba(24, 119, 242, 0.20);
+    --primary-soft:  rgba(24, 119, 242, 0.10);
 
     /* 状态色 */
-    --success:      #34d399;
-    --success-bg:   rgba(52, 211, 153, 0.10);
-    --success-bdr:  rgba(52, 211, 153, 0.30);
-    --warning:      #fbbf24;
-    --warning-bg:   rgba(251, 191, 36, 0.10);
-    --warning-bdr:  rgba(251, 191, 36, 0.30);
-    --error:        #f87171;
-    --error-bg:     rgba(248, 113, 113, 0.10);
-    --error-bdr:    rgba(248, 113, 113, 0.30);
+    --success:      #31A24C;
+    --success-bg:   rgba(49, 162, 76, 0.10);
+    --success-bdr:  rgba(49, 162, 76, 0.30);
+    --warning:      #F7B928;
+    --warning-bg:   rgba(247, 185, 40, 0.12);
+    --warning-bdr:  rgba(247, 185, 40, 0.35);
+    --error:        #E02020;
+    --error-bg:     rgba(224, 32, 32, 0.10);
+    --error-bdr:    rgba(224, 32, 32, 0.30);
 
     /* 边框 */
-    --border:       rgba(136, 146, 176, 0.15);
-    --border-accent: rgba(255, 77, 77, 0.30);
-    --border-focus: #ff4d4d;
+    --border:        #CED0D4;
+    --border-accent: #1877F2;
+    --border-focus:  #1877F2;
 
     /* 文字 */
-    --text-primary:   #f0f4ff;
-    --text-secondary: #8892b0;
-    --text-muted:     #5a6480;
+    --text-primary:   #050505;
+    --text-secondary: #65676B;
+    --text-muted:     #606770;
 
-    /* 卡片毛玻璃 */
-    --surface-card:  rgba(10, 15, 26, 0.65);
-    --surface-strong: rgba(10, 15, 26, 0.85);
+    /* 卡片 */
+    --surface-card:   #ffffff;
+    --surface-strong: #F0F2F5;
 
     /* 阴影 */
-    --shadow-1: 0 2px 8px rgba(0,0,0,0.40);
-    --shadow-2: 0 4px 20px rgba(0,0,0,0.50);
-    --shadow-3: 0 8px 32px rgba(255,77,77,0.20);
+    --shadow-1: 0 1px 2px rgba(0,0,0,0.10);
+    --shadow-2: 0 2px 8px rgba(0,0,0,0.10);
+    --shadow-3: 0 4px 16px rgba(24,119,242,0.15);
 
     /* 字体 */
-    --font-display: "Clash Display", system-ui, sans-serif;
-    --font-body:    "Satoshi", system-ui, sans-serif;
+    --font-display: "Inter", system-ui, sans-serif;
+    --font-body:    "Inter", system-ui, sans-serif;
 }
 
 /* ===== 动画 ===== */
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-12px); }
+    from { opacity: 0; transform: translateY(-10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes coralPulse {
-    0%   { box-shadow: 0 0 0 0 rgba(255,77,77,0.40); }
-    70%  { box-shadow: 0 0 0 8px rgba(255,77,77,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,77,77,0); }
-}
-@keyframes gradientShift {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-@keyframes nebulaDrift {
-    0%   { opacity: 0.6; }
-    50%  { opacity: 1.0; }
-    100% { opacity: 0.6; }
+@keyframes bluePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(24,119,242,0.35); }
+    70%  { box-shadow: 0 0 0 8px rgba(24,119,242,0); }
+    100% { box-shadow: 0 0 0 0 rgba(24,119,242,0); }
 }
 
 /* ===== 全局背景 ===== */
@@ -134,21 +120,6 @@ st.markdown("""
     background: var(--bg-app) !important;
     min-height: 100vh;
     font-family: var(--font-body) !important;
-    position: relative;
-}
-
-/* 星云背景装饰 */
-.stApp::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-        radial-gradient(ellipse 80% 50% at 15% 15%, rgba(255,77,77,0.08), transparent 50%),
-        radial-gradient(ellipse 60% 60% at 85% 25%, rgba(0,229,204,0.05), transparent 50%),
-        radial-gradient(ellipse 90% 70% at 50% 95%, rgba(255,77,77,0.04), transparent 50%);
-    animation: nebulaDrift 12s ease-in-out infinite;
 }
 
 .stApp * {
@@ -159,32 +130,25 @@ st.markdown("""
     max-width: 780px;
     padding-top: 2rem;
     padding-bottom: 4rem;
-    position: relative;
-    z-index: 1;
 }
-
 
 /* ===== Header ===== */
 .app-header {
     font-family: var(--font-display) !important;
-    font-size: 1.9rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #f0f4ff 0%, #ff4d4d 52%, #00e5cc 100%);
-    background-size: 200% 200%;
-    animation: fadeInDown 0.5s ease both, gradientShift 6s ease infinite;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
+    color: #1877F2 !important;
+    -webkit-text-fill-color: #1877F2 !important;
+    animation: fadeInDown 0.5s ease both;
     margin-bottom: 0.1rem;
     line-height: 1.2;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
 }
 .app-subtitle {
     animation: fadeInDown 0.7s ease both;
     color: var(--text-muted) !important;
     font-size: 0.8rem;
     margin-top: 0;
-    font-family: var(--font-body);
 }
 
 /* ===== Divider ===== */
@@ -212,7 +176,7 @@ hr {
 }
 .step-capsule-active {
     display: inline-block;
-    background: linear-gradient(135deg, #ff4d4d 0%, #991b1b 100%);
+    background: #1877F2;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: none;
@@ -220,8 +184,8 @@ hr {
     padding: 5px 16px;
     font-size: 0.78rem;
     font-weight: 700;
-    box-shadow: 0 2px 12px rgba(255,77,77,0.45);
-    animation: coralPulse 1.8s infinite, slideInUp 0.3s ease both;
+    box-shadow: 0 2px 10px rgba(24,119,242,0.40);
+    animation: bluePulse 1.8s infinite, slideInUp 0.3s ease both;
 }
 .step-capsule-wait {
     display: inline-block;
@@ -239,28 +203,25 @@ hr {
 .step-active { color: var(--primary) !important; font-weight: 600; }
 .step-wait   { color: var(--text-muted) !important; }
 
-/* ===== 公众号定位选择器卡片（重点改版区域）===== */
+/* ===== 公众号定位选择器卡片 ===== */
 .config-card {
     background: var(--surface-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 1.2rem 1.5rem;
     margin: 0.8rem 0;
-    box-shadow: var(--shadow-2);
-    transition: border-color 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--shadow-1);
+    transition: border-color 0.2s, box-shadow 0.2s;
     animation: slideInUp 0.4s ease both;
 }
 .config-card:hover {
-    border-color: var(--border-accent);
-    box-shadow: 0 8px 32px rgba(255,77,77,0.12);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-3);
 }
 .section-label {
-    font-family: var(--font-display) !important;
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-muted) !important;
     margin-bottom: 0.6rem;
@@ -279,7 +240,7 @@ hr {
 .category-pill {
     display: inline-block;
     background: var(--primary-soft);
-    border: 1px solid var(--border-accent);
+    border: 1px solid rgba(24,119,242,0.30);
     border-radius: 20px;
     padding: 3px 12px;
     font-size: 0.75rem;
@@ -293,22 +254,20 @@ hr {
 
 /* ===== 上传区卡片 ===== */
 .upload-box {
-    border: 1.5px dashed var(--border-accent);
-    border-radius: 14px;
+    border: 1.5px dashed #1877F2;
+    border-radius: 10px;
     padding: 2.5rem 2rem;
     text-align: center;
-    background: var(--surface-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #ffffff;
     margin: 1rem 0;
-    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.25s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
     animation: slideInUp 0.4s ease both;
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-1);
 }
 .upload-box:hover {
-    border-color: var(--primary);
-    background: rgba(255,77,77,0.06);
-    box-shadow: 0 8px 32px rgba(255,77,77,0.15);
+    border-color: var(--primary-dark);
+    background: var(--primary-soft);
+    box-shadow: var(--shadow-3);
     transform: translateY(-2px);
 }
 .upload-icon {
@@ -319,7 +278,6 @@ hr {
 .upload-title {
     font-size: 1rem;
     font-weight: 600;
-    font-family: var(--font-display) !important;
     color: var(--text-primary) !important;
     margin-bottom: 0.3rem;
 }
@@ -333,17 +291,17 @@ hr {
 .warn-box {
     background: var(--warning-bg);
     border: 1px solid var(--warning-bdr);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 0.85rem 1.2rem;
     margin: 0.8rem 0;
-    color: var(--warning) !important;
+    color: #7A5C00 !important;
     font-size: 0.88rem;
     animation: slideInUp 0.3s ease both;
 }
 .success-box {
     background: var(--success-bg);
     border: 1px solid var(--success-bdr);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 0.85rem 1.2rem;
     margin: 0.8rem 0;
     color: var(--success) !important;
@@ -353,7 +311,7 @@ hr {
 .error-box {
     background: var(--error-bg);
     border: 1px solid var(--error-bdr);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 0.85rem 1.2rem;
     margin: 0.8rem 0;
     color: var(--error) !important;
@@ -364,25 +322,23 @@ hr {
 /* ===== 编辑区卡片 ===== */
 .editor-card {
     border-left: 3px solid var(--primary);
-    border-radius: 0 12px 12px 0;
+    border-radius: 0 10px 10px 0;
     padding: 1.2rem 1.4rem;
     background: var(--surface-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--border);
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-bottom: 1rem;
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-1);
     animation: slideInUp 0.4s ease both;
 }
 
 /* ===== 输入框 ===== */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background: var(--surface-strong) !important;
+    background: #ffffff !important;
     border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-family: var(--font-body) !important;
     font-size: 0.92rem !important;
@@ -391,7 +347,7 @@ hr {
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
     border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px rgba(255,77,77,0.18) !important;
+    box-shadow: 0 0 0 3px rgba(24,119,242,0.18) !important;
     outline: none !important;
 }
 
@@ -403,70 +359,71 @@ hr {
     font-weight: 500 !important;
 }
 
-/* ===== 主按钮（Coral 渐变）===== */
+/* ===== 主按钮（Facebook 蓝）===== */
 .stButton > button {
-    background: linear-gradient(135deg, #ff4d4d 0%, #991b1b 100%) !important;
+    background: #1877F2 !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 0.9rem !important;
     padding: 0.55rem 1.4rem !important;
     font-family: var(--font-display) !important;
-    letter-spacing: 0.02em;
-    box-shadow: 0 4px 16px rgba(255,77,77,0.25) !important;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
+    letter-spacing: 0.01em;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
     cursor: pointer !important;
 }
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 28px rgba(255,77,77,0.38) !important;
+    background: #166FE5 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(24,119,242,0.30) !important;
 }
 .stButton > button:active {
+    background: #1558B0 !important;
     transform: translateY(0) !important;
-    box-shadow: 0 2px 8px rgba(255,77,77,0.20) !important;
+    box-shadow: none !important;
 }
 .stButton > button:disabled {
-    background: rgba(136,146,176,0.15) !important;
-    color: var(--text-muted) !important;
-    -webkit-text-fill-color: var(--text-muted) !important;
+    background: #BCC0C4 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     cursor: not-allowed !important;
     box-shadow: none !important;
     transform: none !important;
 }
 
-/* ===== Download 按钮（Outline Coral）===== */
+/* ===== Download 按钮（Outline 蓝）===== */
 .stDownloadButton > button {
     background: transparent !important;
     color: var(--primary) !important;
     -webkit-text-fill-color: var(--primary) !important;
-    border: 1px solid var(--border-accent) !important;
-    border-radius: 10px !important;
+    border: 1px solid var(--primary) !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 0.9rem !important;
     padding: 0.55rem 1.4rem !important;
-    font-family: var(--font-display) !important;
     box-shadow: none !important;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
+    transition: all 0.2s ease !important;
 }
 .stDownloadButton > button:hover {
     background: var(--primary-soft) !important;
-    border-color: var(--primary) !important;
-    box-shadow: 0 4px 16px rgba(255,77,77,0.18) !important;
+    border-color: var(--primary-dark) !important;
+    box-shadow: 0 2px 8px rgba(24,119,242,0.20) !important;
     transform: translateY(-1px) !important;
 }
 
 /* ===== Selectbox ===== */
 div[data-testid="stSelectbox"] > div > div {
-    background: var(--surface-strong) !important;
+    background: #ffffff !important;
     border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     color: var(--text-primary) !important;
     box-shadow: var(--shadow-1) !important;
 }
 div[data-testid="stSelectbox"] > div > div:hover {
-    border-color: var(--border-accent) !important;
+    border-color: var(--primary) !important;
 }
 
 /* ===== Radio 按钮 ===== */
@@ -484,33 +441,31 @@ div[data-testid="stSelectbox"] > div > div:hover {
 
 /* ===== Progress bar ===== */
 .stProgress > div > div > div {
-    background: linear-gradient(90deg, #ff4d4d 0%, #e63946 100%) !important;
+    background: #1877F2 !important;
     border-radius: 999px !important;
 }
 .stProgress > div > div {
-    background: rgba(136,146,176,0.15) !important;
+    background: #E4E6EB !important;
     border-radius: 999px !important;
 }
 
 /* ===== Expander ===== */
 .streamlit-expanderHeader {
-    background: var(--surface-card) !important;
+    background: #ffffff !important;
     border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     color: var(--text-primary) !important;
     font-weight: 600 !important;
-    backdrop-filter: blur(8px);
     transition: background 0.2s, border-color 0.2s;
 }
 .streamlit-expanderHeader:hover {
-    background: rgba(255,77,77,0.06) !important;
-    border-color: var(--border-accent) !important;
+    background: var(--primary-soft) !important;
+    border-color: var(--primary) !important;
 }
 
 /* ===== File uploader ===== */
 div[data-testid="stFileUploader"] > div { border: none !important; }
 
-/* section 强制 flex 横排，按钮在左 */
 div[data-testid="stFileUploader"] section,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
     display: flex !important;
@@ -519,25 +474,22 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
     justify-content: flex-start !important;
     gap: 1.5rem !important;
     padding: 1.2rem 1.5rem !important;
-    background: var(--surface-card) !important;
-    backdrop-filter: blur(12px) !important;
-    border: 1.5px dashed var(--border-accent) !important;
-    border-radius: 12px !important;
+    background: #ffffff !important;
+    border: 1.5px dashed #1877F2 !important;
+    border-radius: 10px !important;
     box-shadow: var(--shadow-1);
-    transition: border-color 0.25s, background 0.25s;
+    transition: border-color 0.2s, background 0.2s;
 }
 div[data-testid="stFileUploader"] section:hover,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"]:hover {
-    border-color: var(--primary) !important;
-    background: rgba(255,77,77,0.06) !important;
+    border-color: var(--primary-dark) !important;
+    background: var(--primary-soft) !important;
 }
 
-/* 隐藏 presentation 层多余按钮 */
 div[data-testid="stFileUploader"] div[role="presentation"] > button {
     display: none !important;
 }
 
-/* 按钮放最左：order -1 */
 div[data-testid="stFileUploader"] section > button,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > button,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
@@ -545,23 +497,23 @@ div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"] {
     flex-shrink: 0 !important;
     min-width: 130px !important;
     white-space: nowrap !important;
-    background: linear-gradient(135deg, #ff4d4d 0%, #991b1b 100%) !important;
+    background: #1877F2 !important;
     color: #ffffff !important;
     font-size: 14px !important;
     border: none !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
     padding: 0.5rem 1.4rem !important;
-    box-shadow: 0 4px 14px rgba(255,77,77,0.30) !important;
+    box-shadow: none !important;
     transition: all 0.2s ease !important;
 }
 div[data-testid="stFileUploader"] section > button:hover,
 div[data-testid="stFileUploader"] button[data-testid="stBaseButton-secondary"]:hover {
+    background: #166FE5 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(255,77,77,0.40) !important;
+    box-shadow: 0 4px 14px rgba(24,119,242,0.25) !important;
 }
 
-/* 格式说明 div 在右 */
 div[data-testid="stFileUploader"] section > div,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div {
     flex: 1 !important;
@@ -569,7 +521,6 @@ div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div {
     text-align: left !important;
 }
 
-/* 隐藏"将文件拖放到此处"文字 */
 div[data-testid="stFileUploader"] section > div > span:not(button span),
 div[data-testid="stFileUploader"] section > div > small,
 div[data-testid="stFileUploader"] section > div > p:first-child,
@@ -577,7 +528,6 @@ div[data-testid="stFileUploaderDropzone"] > div > span:not(button span),
 div[data-testid="stFileUploaderDropzone"] > div > small {
     display: none !important;
 }
-/* 确保按钮内 span/文字可见 */
 div[data-testid="stFileUploader"] button span {
     display: inline !important;
     visibility: visible !important;
@@ -611,15 +561,14 @@ h1, h2, h3 {
 
 /* ===== Info/Warning/Success 原生提示框 ===== */
 div[data-testid="stAlert"] {
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     border-left-width: 4px !important;
-    background: var(--surface-card) !important;
-    backdrop-filter: blur(8px);
+    background: #ffffff !important;
 }
 
 /* ===== Sidebar ===== */
 [data-testid="stSidebar"] {
-    background: var(--bg-surface) !important;
+    background: #ffffff !important;
     border-right: 1px solid var(--border) !important;
 }
 
@@ -631,16 +580,16 @@ div[data-testid="stAlert"] {
 
 /* ===== 滚动条 ===== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-muted); }
+::-webkit-scrollbar-track { background: #F0F2F5; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255,77,77,0.30);
+    background: #BCC0C4;
     border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,77,77,0.50); }
+::-webkit-scrollbar-thumb:hover { background: #1877F2; }
 
 /* ===== 选中文字 ===== */
 ::selection {
-    background: rgba(255,77,77,0.25);
+    background: rgba(24,119,242,0.20);
     color: var(--text-primary);
 }
 
@@ -654,14 +603,12 @@ div[data-testid="stAlert"] {
 
 /* ===== Section 卡片容器 ===== */
 .section-card {
-    background: var(--surface-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #ffffff;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 1rem 1.2rem;
     margin: 0.5rem 0;
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-1);
 }
 </style>
 
